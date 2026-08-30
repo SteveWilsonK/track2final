@@ -52,11 +52,16 @@ to 90 seconds per 3 seed experiment). The cost is agent reasoning.
 
 ## The three campaigns side by side
 
+To be explicit: **the designated final submission is 0.6116**, the
+converged checkpoint of the interactive campaign's culminating run. The
+verification and clean-room runs are supplementary autonomy demonstrations.
+They are not the scored submission and should not be averaged with it.
+
 | Campaign | Start state | Manual interventions | Converged at |
 |---|---|---|---|
-| Interactive research (29 runs; culminating run 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | 0.6116, the designated final submission |
+| Interactive research (29 runs; culminating run 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | **0.6116, the designated final submission** |
 | Verification run (3 iterations) | frozen research state | 0 | 0.6116 confirmed |
-| Clean-room run (6 iterations) | bare baseline, empty memory | 0 | 0.59744 (+0.0028 over baseline) |
+| Clean-room run (6 iterations) | bare baseline, empty memory | 0 | 0.59744 (+0.0028 over baseline; supplementary demonstration) |
 
 The clean-room agent also refused two configurations whose test scores
 looked better but whose validation did not justify them (its iterations 4

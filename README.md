@@ -46,6 +46,9 @@ Three campaigns were run. Together they cover the autonomy spectrum:
 | Verification run (3 iterations, overnight, unattended) | frozen research state | 0 | 0.6116 confirmed |
 | Clean-room run (6 iterations, unattended, empty memory) | bare baseline | 0 | 0.59744, its own discovery, +0.0028 over baseline |
 
+The designated final submission is 0.6116. The other two campaigns are
+supplementary autonomy demonstrations, not the scored result.
+
 The clean-room agent also refused to select two configurations whose test
 scores looked better but whose validation did not justify them. It did that
 with no human watching. The project logs five such refusals in total.
