@@ -23,6 +23,16 @@ explicitly not an intervention, and neither is launching a run.
 3. Setting an additional stopping rule (stop at 0.65, or after 5 runs with
    no new banked best). Before Run 26. This governed when exploration ended.
 
+Counting sensitivity, stated for transparency: the interactive campaign
+maps onto the run formalism as bounded runs relaunched with accumulated
+memory (see the segmentation table in ITERATION-LOGS.md). Our count of 3
+covers every human decision that changed the agent's direction. If a
+stricter convention also counts each relaunch boundary as an intervention,
+the total is at most 8. Under either convention it remains the "handful"
+that Task Requirement 5 describes as acceptable. The two unattended
+campaigns are zero under any convention: launched once, converged once,
+never relaunched.
+
 Two further human actions are recorded but classified as administrative,
 not loop interventions: choosing which competition track to enter (this
 happened before any agent loop existed) and a request about report
