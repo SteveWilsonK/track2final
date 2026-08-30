@@ -6,6 +6,20 @@ Final result on KuaiRand-Pure: test primary **0.6116** (GAUC 0.6825, nDCG@5
 0.5408). The official baseline is 0.5946, so our delta is **+0.0170**
 (GAUC +0.0215, nDCG@5 +0.0126).
 
+## Verify this submission in five minutes
+
+All from `code/`, dataset in place (see Setup), in this order:
+
+| Command | What it proves | Expected ending |
+|---|---|---|
+| `python3 score_frozen.py` | The headline score, from shipped weights, no training (~2 min) | `test ... primary 0.6116` |
+| `python3 verify_claims.py` | Kit integrity vs the shipped official archive, split sizes, oracle 0.8645, seed noise (~1 min) | every check prints IDENTICAL / matching constants |
+| `python3 replay_verdicts.py` | The selection trail, re-derived from validation alone (~1 s) | `matches the shipped checkpoint: YES` |
+| `python3 staleness_ablation.py` | The serving-assumption sensitivity (~6 min) | daily-batch regime at `+0.0137` |
+
+Full retraining from raw data: `python3 final_model.py` (~5 min, ends at
+the same 0.6116).
+
 ## Project overview
 
 The task: build an agent that runs the ML research loop on its own. Read the
@@ -154,7 +168,18 @@ python3 agent/driver.py    # from the repo root
 
 ## Team member contributions
 
-(To be completed by the team before submission.)
+The AI/human division of labor is documented throughout this repository:
+the agent (Claude Code) proposed, implemented, and evaluated every
+experiment; the enumerated human decisions are in `logs/INTERVENTIONS.md`.
+Human team roles:
+
+- [NAME], [role: e.g. project direction, research decisions, submission]
+- [NAME], [role: e.g. repository management, verification runs]
+- [NAME], [role: e.g. write-up review, video]
+- [NAME], [role]
+- [NAME], [role]
+
+(Team: replace the placeholders above before submitting.)
 
 ## Acknowledgements and AI tooling disclosure
 

@@ -12,6 +12,19 @@ propose a hypothesis, implement it in code, train, evaluate, reflect, and
 decide what to try next. It iterates until the official convergence rule
 fires (no validation improvement above 0.002 for 3 consecutive iterations).
 
+The trade-off at the heart of this track, stated up front. Fully unaided,
+in a strict clean-room run from a bare baseline with zero human input, our
+agent reaches +0.0028 over the official baseline. The +0.0170 we submit
+came from a longer supervised campaign in which a human made three
+enumerated strategic decisions, the most consequential being permission to
+explore the feature family that produced most of the gain. We think the
+clean-room number is the honest measure of the agent alone, and 0.6116 is
+the honest measure of the system, meaning the agent plus a few human
+judgment calls, which is the configuration real recommender teams would
+actually run. Both numbers ship with full logs, and the gap between them
+is itself a finding: on this task, a handful of strategic human decisions
+was worth about six times the unaided improvement.
+
 Result: test primary **0.6116** (GAUC 0.6825, nDCG@5 0.5408), which is
 **+0.0170 over the official baseline** (GAUC +0.0215, nDCG@5 +0.0126, and
 the score under the official formula is the mean of those deltas). The
