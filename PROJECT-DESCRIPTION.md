@@ -61,8 +61,9 @@ daily batch refresh the shipped model still scores +0.0137, and a committee
 retrained for that regime scores +0.0160, 94 percent of the headline
 (both ablations ship in the repo). On the dataset's randomly-exposed
 impressions, where exposure carries no recommender bias, the advantage
-over the baseline persists at +0.0095, so the gain is not an artifact of
-selection bias.
+persists (+0.0070 against a seed-matched baseline committee; +12.5 percent
+of the baseline's captured headroom, comparable to the standard log), so
+the gain is not an artifact of selection bias.
 
 Three properties of the process matter as much as the score:
 

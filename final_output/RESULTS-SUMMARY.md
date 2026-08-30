@@ -91,11 +91,37 @@ touches the designated submission; the frozen checkpoint is unchanged.
    survives when the model is trained for the serving regime.
 
 2. Unbiased evaluation on random exposure (`code/unbiased_eval.py`):
-   the frozen committee and the retrained official baseline scored on
-   897,721 test-window impressions from log_random, where videos were
-   exposed uniformly at random (no selection bias). Evaluation only; the
-   training retirement of this file stands. Result: ours 0.3777 vs
-   baseline 0.3682 (+0.0095; GAUC +0.0090, nDCG@5 +0.0100). The model's
-   advantage is not an artifact of the previous recommender's exposure
-   choices. Absolute numbers are lower in this regime because random
-   exposure yields few positives per user.
+   the frozen committee scored on 897,721 test-window impressions from
+   log_random, where videos were exposed uniformly at random (no selection
+   bias), against a seed-matched 5-seed kit-baseline committee retrained
+   on the standard training split. Evaluation only; the training
+   retirement of this file stands. Result: ours 0.3777 vs baseline 0.3707
+   (+0.0070; +0.0095 against the single-seed baseline). Range-normalized
+   (floor 0.3149, oracle 0.8138, both derived in the script): baseline
+   captures 11.2 percent of the attainable range, ours 12.6 percent, a
+   relative gain of +12.5 percent of the baseline's captured headroom,
+   comparable to the standard log's +14 percent. The advantage is not an
+   artifact of the previous recommender's exposure choices. Scope note:
+   features here use the same continuous-update regime as the headline,
+   so this isolates exposure bias, not feature freshness. Absolute numbers
+   are compressed because 37.2 percent of users in this set have no
+   positive and the positive rate is 8.6 percent.
+
+3. Precision notes on both analyses. The daily-regime retrain is a single
+   5-seed committee run; its per-seed singles spread (0.6059 to 0.6081,
+   std about 0.0008) matches the campaign-measured noise floor, so no
+   replicate was run. Neither analysis went through the campaign harness:
+   both are post-freeze impact measurements, not selection events.
+
+4. Feature cost accounting. The seven causal features require, per user:
+   the last impression's label, two bounded label deques (10 and 30), an
+   impression counter, one timestamp, and positive-count maps keyed by
+   author and by tag (bounded by the distinct authors/tags the user has
+   seen). This is a few hundred bytes to a few KB per user, roughly tens
+   of MB for the 27K-user population; every update is O(1) per impression
+   and serving reads are O(1) lookups. Backfill is one chronological pass
+   over the log (the shipped scripts perform it in about two minutes,
+   single core, for the 1.4M-impression stream, data load included). The
+   freshness trade is bounded by the two measured points: streaming
+   +0.0170, daily-batch retrained +0.0160, i.e. about 0.001 primary per
+   day of feature lag on this dataset.

@@ -69,7 +69,6 @@ def build_daily_features():
             x['gap'] = ('<1m' if d < 60_000 else '<1h' if d < 3_600_000
                         else '<1d' if d < 86_400_000 else '1d+')
 
-        x['hvids_dummy'] = None
         h['pend'].append(x)
         h['pend_day'] = x['date']
     return splits

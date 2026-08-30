@@ -75,11 +75,18 @@ trained for it; 80 percent survives even without retraining.
 Separately, on the dataset's randomly-exposed impressions (897,721
 test-window rows with no recommender selection bias; evaluation only, per
 our legality analysis; `unbiased_eval.py`), the advantage persists: ours
-0.3777 vs the official baseline's 0.3682, a delta of +0.0095 with both
-metric components improving. The gain is not an artifact of ranking what
-the previous system already favored. Absolute numbers are lower in this
-regime because randomly-chosen videos are rarely long-viewed, so positives
-per user are scarce.
+0.3777 vs 0.3707 for a seed-matched 5-seed baseline committee, a delta of
++0.0070 with both metric components improving (+0.0095 against the
+single-seed baseline). Absolute numbers are compressed in this regime
+(37.2 percent of its users have no positive at all; positive rate 8.6
+percent), so the fair reading is range-normalized: the attainable range
+here runs 0.3149 (random floor) to 0.8138 (oracle), the baseline captures
+11.2 percent of it, ours 12.6 percent, a relative gain of +12.5 percent
+over the baseline's captured headroom, comparable to the +14 percent on
+the standard log. The gain is not an artifact of ranking what the previous
+system already favored. One scope note: features on these rows use the
+same continuous-update regime as the headline, so this analysis removes
+exposure bias; it does not additionally vary feature freshness.
 
 Three campaigns were run. Together they cover the autonomy spectrum:
 
