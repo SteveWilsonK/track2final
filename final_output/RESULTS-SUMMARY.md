@@ -126,3 +126,47 @@ touches the designated submission; the frozen checkpoint is unchanged.
    primary (streaming +0.0170 vs daily-batch retrained +0.0160). We do
    not extrapolate a per-day rate beyond them: the only longer-lag point
    (the frozen row) is confounded by train/serve mismatch.
+
+## Research extension (31 Aug, pre-submission night)
+
+Three additions aimed at the review's Innovation critique. None touches
+the designated submission.
+
+1. Mechanism falsification of the headline claim
+   (`code/controls.py` + `code/mechanism_test.py`). Our central causal
+   claim was that the sequence features work because they carry
+   what-the-user-just-did information. The falsification test, synthesized
+   mechanically from the claim's "temporal" tag: permute which impression
+   each feature vector is attached to, within each user and each split
+   (per-user marginals preserved, alignment destroyed, no split-crossing,
+   labels untouched), then retrain. Result, 5-seed committees per arm:
+
+   | Arm | test primary |
+   |---|---|
+   | A full recipe (frozen submission) | 0.61164 |
+   | B no sequence features | 0.59808 |
+   | C features time-shuffled | 0.59872 |
+   | D features replaced by matched-cardinality noise | 0.59876 |
+
+   Decomposition of the +0.01356 sequence gain: **95 percent is timing**
+   (collapses when alignment breaks), ~5 percent is generic added
+   capacity, and ~0 percent is user-identity fingerprinting — the
+   shuffled features perform identically to random noise (C vs D within
+   0.00004). The causal-recency mechanism is proven mechanically, not
+   asserted.
+
+2. Agent research machinery (`agent/`): `belief_state.py` (structured
+   persistent memory whose promote() refuses, as code, to confirm a
+   mechanism-tagged hypothesis without a passing falsification control),
+   `residual_analysis.py` (hypotheses generated from the champion's own
+   worst validation slices, ranked by expected value), `priority.py`
+   (expected value per second of compute, costed from the actual wall
+   times in LOG.jsonl), and `ITERATION_PROMPT.md` v2 wiring them into the
+   loop: observe residuals -> take the priciest hypothesis -> experiment
+   -> falsify before banking. Each module ships with a passing self-test.
+
+3. Exposure-debiasing frontier (`code/debias_frontier.py`): negatives in
+   the listwise objective re-weighted by inverse train-window exposure
+   (lambda-parameterized), each lambda scored on both the biased standard
+   test and the unbiased random-exposure test. Results in the table below
+   once the sweep completes.
