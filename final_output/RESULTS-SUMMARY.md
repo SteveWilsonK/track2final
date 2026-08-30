@@ -167,6 +167,21 @@ the designated submission.
 
 3. Exposure-debiasing frontier (`code/debias_frontier.py`): negatives in
    the listwise objective re-weighted by inverse train-window exposure
-   (lambda-parameterized), each lambda scored on both the biased standard
-   test and the unbiased random-exposure test. Results in the table below
-   once the sweep completes.
+   (lambda-parameterized; a train-only statistic), each lambda trained as
+   a 3-seed committee and scored on BOTH tests:
+
+   | lambda | biased (standard) test | unbiased (random-exposure) test |
+   |---|---|---|
+   | 0.0 (the shipped recipe) | 0.6009 | 0.3785 |
+   | 0.5 | 0.5840 (−0.017) | 0.4122 (+0.034) |
+   | 1.0 | 0.5654 (−0.035) | 0.4181 (+0.040) |
+
+   The finding: on KuaiRand-Pure, one point of biased-log score buys about
+   two points of unbiased-exposure score. Exposure-debiased training
+   roughly doubles the model's advantage on true-preference ranking while
+   losing on the logged-exposure metric — quantifying how much of
+   standard-log performance is exposure-bias fitting rather than
+   preference modeling. The designated submission remains lambda = 0
+   because the competition scores the logged-exposure test; a production
+   system optimizing true preference would choose otherwise, and this
+   curve is the measured cost of that choice.
