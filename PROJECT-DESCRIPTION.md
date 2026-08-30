@@ -57,8 +57,12 @@ The final model is deliberately simple: a five seed committee of
 Factorization Machines (k=16), reproducible from raw data in one command in
 about 5 minutes on a laptop CPU. Its serving assumption is stated and
 measured: the sequence features assume a streaming feature store; under a
-daily batch refresh the model still scores +0.0137 over baseline
-(staleness ablation shipped in the repo).
+daily batch refresh the shipped model still scores +0.0137, and a committee
+retrained for that regime scores +0.0160, 94 percent of the headline
+(both ablations ship in the repo). On the dataset's randomly-exposed
+impressions, where exposure carries no recommender bias, the advantage
+over the baseline persists at +0.0095, so the gain is not an artifact of
+selection bias.
 
 Three properties of the process matter as much as the score:
 

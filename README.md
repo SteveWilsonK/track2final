@@ -65,10 +65,21 @@ weights (`code/staleness_ablation.py`):
 | Test-time feature regime | primary | vs baseline |
 |---|---|---|
 | Continuous updates (as submitted) | 0.6116 | +0.0170 |
-| Daily batch refresh | 0.6083 | +0.0137 |
+| Daily batch refresh, shipped weights unmodified | 0.6083 | +0.0137 |
+| Daily batch refresh, committee retrained for the regime (`daily_retrain.py`) | 0.6106 | +0.0160 |
 | Frozen at the test boundary (lower bound; train/serve skew) | 0.5943 | −0.0003 |
 
-About 80 percent of the gain survives a realistic daily refresh cadence.
+94 percent of the gain survives a daily refresh cadence when the model is
+trained for it; 80 percent survives even without retraining.
+
+Separately, on the dataset's randomly-exposed impressions (897,721
+test-window rows with no recommender selection bias; evaluation only, per
+our legality analysis; `unbiased_eval.py`), the advantage persists: ours
+0.3777 vs the official baseline's 0.3682, a delta of +0.0095 with both
+metric components improving. The gain is not an artifact of ranking what
+the previous system already favored. Absolute numbers are lower in this
+regime because randomly-chosen videos are rarely long-viewed, so positives
+per user are scarce.
 
 Three campaigns were run. Together they cover the autonomy spectrum:
 

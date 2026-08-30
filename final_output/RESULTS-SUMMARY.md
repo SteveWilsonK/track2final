@@ -77,3 +77,25 @@ shipped weights (`code/staleness_ablation.py`), only test featurization
 changing: continuous 0.6116 (+0.0170), daily batch refresh 0.6083
 (+0.0137), frozen at the test boundary 0.5943 (a lower bound distorted by
 train/serve skew). See logs/PROCESS-AUDIT.md for the full reading.
+
+## Post-freeze impact analyses (30 Aug night)
+
+Run after the freeze in response to review-round impact critiques. Neither
+touches the designated submission; the frozen checkpoint is unchanged.
+
+1. Daily-regime retraining (`code/daily_retrain.py`): every row's features
+   rebuilt under a daily batch refresh and the 5-seed committee retrained
+   from scratch. Result: valid 0.6145 / test 0.6106 (+0.0160 over
+   baseline). This replaces the earlier mismatch-penalized figure (0.6083)
+   as the deployable-cadence number: 94 percent of the headline gain
+   survives when the model is trained for the serving regime.
+
+2. Unbiased evaluation on random exposure (`code/unbiased_eval.py`):
+   the frozen committee and the retrained official baseline scored on
+   897,721 test-window impressions from log_random, where videos were
+   exposed uniformly at random (no selection bias). Evaluation only; the
+   training retirement of this file stands. Result: ours 0.3777 vs
+   baseline 0.3682 (+0.0095; GAUC +0.0090, nDCG@5 +0.0100). The model's
+   advantage is not an artifact of the previous recommender's exposure
+   choices. Absolute numbers are lower in this regime because random
+   exposure yields few positives per user.

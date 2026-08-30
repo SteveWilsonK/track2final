@@ -169,3 +169,14 @@ Known and accepted, not fixed: the team-contributions section awaits the
 team's text; the frozen-regime row of the staleness table remains a lower
 bound (no model was retrained for that regime); shipped transcripts contain
 local filesystem paths (scanned: no credentials).
+
+## 7. Post-freeze impact analyses (30 Aug night)
+
+Responding to the review's Impact critiques with measurements rather than
+prose: (a) a committee retrained under the daily-batch feature regime
+scores 0.6106 (+0.0160), converting the staleness table's deployable row
+from a mismatch-penalized figure into a trained one; (b) an
+evaluation-only use of the random-exposure log (897,721 unbiased
+test-window rows) shows the advantage persists without selection bias
+(+0.0095). Scripts: code/daily_retrain.py, code/unbiased_eval.py. The
+designated submission is untouched by both.
