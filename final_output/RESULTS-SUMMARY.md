@@ -122,6 +122,7 @@ touches the designated submission; the frozen checkpoint is unchanged.
    and serving reads are O(1) lookups. Backfill is one chronological pass
    over the log (the shipped scripts perform it in about two minutes,
    single core, for the 1.4M-impression stream, data load included). The
-   freshness trade is bounded by the two measured points: streaming
-   +0.0170, daily-batch retrained +0.0160, i.e. about 0.001 primary per
-   day of feature lag on this dataset.
+   freshness trade between the two measured cadences is about 0.001
+   primary (streaming +0.0170 vs daily-batch retrained +0.0160). We do
+   not extrapolate a per-day rate beyond them: the only longer-lag point
+   (the frozen row) is confounded by train/serve mismatch.

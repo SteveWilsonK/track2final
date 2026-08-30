@@ -27,7 +27,7 @@ Run from code/:  python3 unbiased_eval.py     (~5 min)
 import csv, os, collections
 import numpy as np
 from evaluate import evaluate
-from baseline import FM, run_fm
+from baseline import FM
 from data import load
 from sequences import load_sequenced, encode_rows, BASE, SEQ, DATA
 
@@ -187,7 +187,6 @@ co = (ours['primary'] - floor) / span
 rel = (ours['primary'] - base['primary']) / (base['primary'] - floor)
 print(f"baseline captures {cb:.1%} of the attainable range; ours {co:.1%}")
 print(f"relative gain over baseline's captured headroom: {rel:+.1%}")
-zero_pos = sum(1 for lst in [yrt] for _ in [0])
 from collections import defaultdict as dd
 byu2 = dd(list)
 for u, y in zip(urt, yrt):
