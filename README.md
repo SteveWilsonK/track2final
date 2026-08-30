@@ -8,7 +8,9 @@ Final result on KuaiRand-Pure: test primary **0.6116** (GAUC 0.6825, nDCG@5
 
 ## Verify this submission in five minutes
 
-All from `code/`, dataset in place (see Setup), in this order:
+One prerequisite first: the dataset (~200 MB) must be downloaded and
+extracted per Setup below; none of these commands run without it. Then,
+all from `code/`, in this order:
 
 | Command | What it proves | Expected ending |
 |---|---|---|

@@ -23,7 +23,9 @@ the honest measure of the system, meaning the agent plus a few human
 judgment calls, which is the configuration real recommender teams would
 actually run. Both numbers ship with full logs, and the gap between them
 is itself a finding: on this task, a handful of strategic human decisions
-was worth about six times the unaided improvement.
+was worth about six times the unaided improvement, though the two runs also
+differ in length (6 iterations against 29), so this bounds rather than
+isolates the value of the human decisions.
 
 Result: test primary **0.6116** (GAUC 0.6825, nDCG@5 0.5408), which is
 **+0.0170 over the official baseline** (GAUC +0.0215, nDCG@5 +0.0126, and
