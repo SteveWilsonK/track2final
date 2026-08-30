@@ -35,15 +35,31 @@ The two discoveries that carried the score:
 - Show the model what the user just did. Seven features computed strictly
   from events before each impression: previous impression outcome, rolling
   watch rates, per author and per tag history, session gap. No feature ever
-  sees its own row's label or anything later in time. Largest single gain,
-  about +0.013.
+  sees its own row's label or anything later in time. This family carried
+  the largest share of the final margin (+0.0038 at introduction, about
+  +0.013 with its richer variants and the committee built on it).
+
+Serving assumption, stated and measured. The history features update
+continuously, which assumes a streaming feature store: a test row's
+features include the outcomes of the same user's earlier test-window
+impressions (each row still sees only strictly-prior events). We measured
+what the gain looks like under weaker serving assumptions with the shipped
+weights (`code/staleness_ablation.py`):
+
+| Test-time feature regime | primary | vs baseline |
+|---|---|---|
+| Continuous updates (as submitted) | 0.6116 | +0.0170 |
+| Daily batch refresh | 0.6083 | +0.0137 |
+| Frozen at the test boundary (lower bound; train/serve skew) | 0.5943 | −0.0003 |
+
+About 80 percent of the gain survives a realistic daily refresh cadence.
 
 Three campaigns were run. Together they cover the autonomy spectrum:
 
 | Campaign | Start state | Manual interventions | Converged at |
 |---|---|---|---|
 | Interactive research (29 runs; the culminating run is iterations 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | 0.6116, the designated final submission |
-| Verification run (3 iterations, overnight, unattended) | frozen research state | 0 | 0.6116 confirmed |
+| Verification run (3 iterations, overnight, unattended; a non-regression check, banked nothing) | frozen research state | 0 | 0.6116 survives re-challenge |
 | Clean-room run (6 iterations, unattended, empty memory) | bare baseline | 0 | 0.59744, its own discovery, +0.0028 over baseline |
 
 The designated final submission is 0.6116. The other two campaigns are
@@ -91,8 +107,7 @@ python3 baseline.py --model fm
 python3 final_model.py
 
 # 3. Or score the shipped weights without retraining, about 2 minutes.
-#    (Copy final_output/frozen_model into code/ first, or run from a
-#    checkout where it is already there.) Prints the same 0.6116.
+#    Finds final_output/frozen_model automatically. Prints the same 0.6116.
 python3 score_frozen.py
 
 # 4. Regenerate and validate the official submission file:
@@ -100,9 +115,18 @@ python3 submit.py --check --split test ../final_output/submission.csv
 ```
 
 The scoring code (`evaluate.py`) and the data split (`data.py`) are byte
-identical to the official starter kit. We verified this with a diff against
-the pristine kit archive. Every reported number comes from the organizers'
-own scoring code on the organizers' own split.
+identical to the official starter kit, and you can check that yourself:
+`python3 verify_claims.py` re-derives the kit hashes, the split sizes, the
+oracle ceiling (0.8645) and user composition, the random floor, and the
+seed-noise summary from the shipped artifacts. Every reported number comes
+from the organizers' own scoring code on the organizers' own split.
+
+A note on process: before submission we commissioned an adversarial review
+of this repository and repaired what it found, including a real
+inconsistency between our harness code and our selection claims. The
+findings and corrections are stated plainly in `logs/PROCESS-AUDIT.md`.
+The interactive phase's per-run commit history is archived in the public
+research repository: https://github.com/SteveWilsonK/techjam-2026-workspace
 
 To run the autonomous loop itself (needs the Claude Code CLI, authenticated):
 

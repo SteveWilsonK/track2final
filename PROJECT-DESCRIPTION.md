@@ -15,13 +15,15 @@ fires (no validation improvement above 0.002 for 3 consecutive iterations).
 Result: test primary **0.6116** (GAUC 0.6825, nDCG@5 0.5408), which is
 **+0.0170 over the official baseline** (GAUC +0.0215, nDCG@5 +0.0126, and
 the score under the official formula is the mean of those deltas). The
-record behind it: 32 logged runs covering about 70 configurations, plus a
-separate clean-room run where the agent, restarted with zero prior knowledge
-and zero human input, independently reached 0.59744 (+0.0028 over baseline)
-in 6 iterations and 1 hour 48 minutes.
+record behind it: 38 logged runs (29 interactive research, 3 verification,
+6 clean-room) covering about 75 configurations, including a clean-room run
+where the agent, restarted with zero prior knowledge and zero human input,
+independently reached 0.59744 (+0.0028 over baseline) in 6 iterations and
+1 hour 48 minutes.
 
-The two discoveries that carried the score, in the order the agent found
-them:
+The two discoveries that carried the score (both found and implemented by
+the agent; the second family's exploration was human-permitted and
+agent-executed, as the interventions summary records):
 
 1. Match the training objective to the metric. The baseline trains pointwise
    but is graded on within-user ranking. A listwise objective (softmax over
@@ -30,13 +32,18 @@ them:
 2. Causal sequence features. Seven features computed strictly from each
    impression's past: previous impression outcome, rolling watch rates, per
    author and per tag history, session gap. Never the row's own label, never
-   anything later in time. This was the largest single gain (+0.013) and it
-   explained an earlier plateau: the models had been information starved,
-   not under powered.
+   anything later in time. This family carried the largest share of the
+   final margin: +0.0038 at introduction under a fixed model class, about
+   +0.013 once the richer variants and the committee were built on it. It
+   also explained an earlier plateau: the models had been information
+   starved, not under powered.
 
 The final model is deliberately simple: a five seed committee of
 Factorization Machines (k=16), reproducible from raw data in one command in
-about 5 minutes on a laptop CPU.
+about 5 minutes on a laptop CPU. Its serving assumption is stated and
+measured: the sequence features assume a streaming feature store; under a
+daily batch refresh the model still scores +0.0137 over baseline
+(staleness ablation shipped in the repo).
 
 Three properties of the process matter as much as the score:
 

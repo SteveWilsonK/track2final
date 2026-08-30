@@ -95,13 +95,15 @@ in brackets.
 | 22 | Interest vector (pooled watched-video embeddings) | interest.py [825f08d] | 0.6036 ± 0.0003 | +0.0086 | ✅ best single on base+seq; superseded by rich line |
 | 23 | Grand committee incl. interest models | run23.py [86faf64] | 0.6045 | +0.0095 | ❌ superseded by rich line; diversity lesson kept |
 | 24 | FM-rich k=32; FM-only committee; deeper history | run24.py [86faf64] | 0.6099 / **0.6116** / 0.6079 | +0.0166 | ✅ **0.6116 banked — final**; capacity dead 3rd time; long windows dilute |
-| 25 | Auth-cap isolate; cross-view blend (α on valid) | run25.py [a777d1e] | 0.6105 / 0.6116 | — | ❌ flat; validation put zero weight on the interest view |
+| 25 | Auth-cap isolate; cross-view blend (α on valid) | run25.py [a777d1e] | 0.6105 / 0.6116 | — | ❌ flat; validation put zero weight on the interest view (α=1.0 ⇒ blend is identical to R24b by construction; a search that chose the incumbent, not an independent result) |
 | 26 | Attention pooling over history (+ control) | run26.py [86faf64] | 0.6020 both | — | ❌ attention = mean pool exactly (clean null) |
 | 27 | Hybrid FM (candidate·history dot term) | run27.py [86faf64] | 0.6097 ± 0.0010 | +0.0147 | ❌ FM interactions already encode it |
 | 28 | Recipe retune on new premises (4 configs) | run28.py [86faf64] | best singles 0.6113 | — | ❌ vs committee; lr 5e-4 lifts singles → fed Run 29 |
 | 29 | Committees on improved singles | run29.py [d53cdf1] | 0.6123 / 0.6117 | — | ❌ **test-peek refusal #2**: best-test arm has worst validation; incumbent kept. Convergence → **freeze at 0.6116** |
 
-**Phase 2 — autonomous verification campaign** (a SEPARATE campaign, not a
+**Phase 2 — autonomous verification campaign (a non-regression check:
+it banked nothing and demonstrates that the converged state survives
+unattended re-challenge, not autonomous improvement)** (a SEPARATE campaign, not a
 resumption: Campaign 1 converged and froze at Run 29; this new run was
 initialized from that frozen state to test it autonomously. Global run
 numbers 30–32 are project-wide identifiers for traceability, not a claim of
@@ -130,7 +132,13 @@ sequence features, committee) · 3 documented test-peek refusals ·
 
 ## Addendum (30 Aug): clean-room autonomous run + spec compliance
 
-**Clean-room run** (records in `cleanroom/`): the same agent relaunched with
+**Clean-room run** (records in `cleanroom/`; note on its convergence
+accounting: iterations 2 and 4 ended without a completed experiment — the
+session was waiting on a still-training grid — and still counted toward the
+below-ε streak. The official rule counts iterations without improvement, so
+the convergence stands; under a stricter result-bearing reading the run
+would have needed one more iteration. Stated openly either way.): the same
+agent relaunched with
 ZERO prior knowledge — empty logs, no backlog, bare official baseline. Six
 iterations, 1 h 48 m, zero interventions: reproduced the baseline (0.59497),
 banked a feature-engineering win at iteration 3 (**0.59744, +0.0028 over the
@@ -144,7 +152,10 @@ makes it a genuine independent trajectory, not a replay.
 clause: validation-ε convergence, 50-iteration cap, 6 h ceiling —
 whichever first):
 
-**Strict-rule segmentation of the interactive phase.** Applying the
+**Strict-rule segmentation of the interactive phase (a retrospective
+mapping: the interactive session was supervised and not live-instrumented;
+this table applies the official rule to the validation record after the
+fact).** Applying the
 official convergence rule (validation improvement > ε resets a 3-miss
 counter) to the validation record partitions Runs 1–29 into bounded runs,
 each relaunched with accumulated memory (the same pattern as the

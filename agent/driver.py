@@ -38,13 +38,13 @@ HARNESS = os.path.join(REPO, 'code', 'harness.py')
 
 
 def banked_best():
-    """The BANKED constant in harness.py — the agent updates it on a
-    validation-legit win (per ITERATION_PROMPT.md), so it is the single
-    source of truth for the current champion."""
+    """The BANKED_VALID constant in harness.py — the banked best on
+    VALIDATION. The agent updates it on a validation-legit win (per
+    ITERATION_PROMPT.md), so convergence is a validation-derived decision."""
     import re
     with open(HARNESS) as fh:
-        m = re.search(r'BANKED\s*=\s*([0-9.]+)', fh.read())
-    return float(m.group(1)) if m else 0.6116
+        m = re.search(r'BANKED_VALID\s*=\s*([0-9.]+)', fh.read())
+    return float(m.group(1)) if m else 0.61906
 
 
 def run_iteration(i):

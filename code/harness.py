@@ -10,17 +10,22 @@ the lab discipline — no iteration can skip it:
      hypothesis, rationale, config, per-seed results, verdict, wall time —
      BEFORE and AFTER the run, so a killed run still leaves its intent.
 
-The test split is evaluated and recorded but the VERDICT is decided on
-validation; test numbers are reported for the log's honesty and audited at
-final scoring. Training code can never see valid/test labels (only
-evaluate() reads them).
+The test split is evaluated and recorded but the VERDICT, the banked-best
+tracking, and the convergence signal are all decided on VALIDATION; test
+numbers are reported for the log's honesty and audited at final scoring.
+(Process note: before 30 Aug the printed verdict label was derived from the
+test delta while banking decisions were made on validation by the operator
+and documented in RESULTS.md; see logs/PROCESS-AUDIT.md. This file now
+computes everything selection-relevant from validation.) Training code can
+never see valid/test labels (only evaluate() reads them).
 """
 import json, os, time
 import numpy as np
 
 LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                    '..', 'logs', 'LOG.jsonl')
-BASELINE = 0.5950          # our reproduced FM baseline (test primary, 3 seeds)
+BASELINE = 0.5950          # reproduced FM baseline, TEST primary (reporting only)
+BASELINE_VALID = 0.6014    # reproduced FM baseline, VALIDATION primary (selection)
 GATE = 0.002               # significance bar; seed noise sigma ~= 0.0008
 
 
@@ -30,14 +35,17 @@ def _append(rec):
 
 
 def current_best():
-    """Best significant test primary recorded so far (falls back to baseline)."""
-    best = BASELINE
+    """Best banked VALIDATION primary recorded so far (falls back to the
+    validation baseline). Selection and convergence run on validation; test
+    is recorded for audit and never ranks candidates."""
+    best = BASELINE_VALID
     if os.path.exists(LOG):
         with open(LOG) as fh:
             for line in fh:
                 r = json.loads(line)
-                if r.get('phase') == 'result' and r.get('verdict') == 'WIN':
-                    best = max(best, r['test_mean'])
+                if r.get('phase') == 'result' and r.get('verdict') == 'WIN' \
+                        and r.get('valid_mean') is not None:
+                    best = max(best, r['valid_mean'])
     return best
 
 
@@ -62,8 +70,10 @@ def run_experiment(name, hypothesis, rationale, train_fn, seeds=3, config=None):
         comps['test_nDCG@5'].append(r['test'].get('nDCG@5'))
     vm, tm, tsd = float(np.mean(vs)), float(np.mean(ts)), float(np.std(ts))
     best = current_best()
-    d_base, d_best = tm - BASELINE, tm - best
-    if d_base > GATE and tm >= best - 1e-9:
+    d_base = vm - BASELINE_VALID          # VALIDATION delta decides the verdict
+    d_best = vm - best
+    d_base_test = tm - BASELINE           # test delta, recorded for audit only
+    if d_base > GATE and vm >= best - 1e-9:
         verdict = 'WIN'
     elif d_base > GATE:
         verdict = 'SIGNIFICANT_BUT_NOT_BEST'
@@ -81,13 +91,14 @@ def run_experiment(name, hypothesis, rationale, train_fn, seeds=3, config=None):
            'test_per_seed': [round(float(x), 5) for x in ts],
            'valid_GAUC': _m('valid_GAUC'), 'valid_nDCG@5': _m('valid_nDCG@5'),
            'test_GAUC': _m('test_GAUC'), 'test_nDCG@5': _m('test_nDCG@5'),
-           'd_baseline': round(float(d_base), 5),
-           'd_best': round(float(d_best), 5),
+           'd_baseline_valid': round(float(d_base), 5),
+           'd_baseline_test': round(float(d_base_test), 5),
+           'd_best_valid': round(float(d_best), 5),
            'verdict': verdict, 'wall_s': round(time.time() - t0, 1)}
     _append(rec)
-    BANKED = 0.6116   # current banked best (R24b: FM-rich-only committee)
-    mark = '✅ BETTER than banked' if tm > BANKED else '❌ not better'
-    print(f"[{verdict}] {name}: test {tm:.4f} ± {tsd:.4f} "
-          f"(d/base {d_base:+.4f}, vs banked {tm - BANKED:+.4f} {mark}, "
-          f"{rec['wall_s']}s)")
+    BANKED_VALID = 0.61906  # banked best on VALIDATION (R24b committee)
+    BANKED = 0.6116         # its test primary, for reporting only
+    mark = '✅ BETTER than banked' if vm > BANKED_VALID else '❌ not better'
+    print(f"[{verdict}] {name}: valid {vm:.4f} (vs banked {vm - BANKED_VALID:+.4f} {mark}) "
+          f"| test {tm:.4f} ± {tsd:.4f} recorded | {rec['wall_s']}s)")
     return rec

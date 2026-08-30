@@ -60,10 +60,18 @@ They are not the scored submission and should not be averaged with it.
 | Campaign | Start state | Manual interventions | Converged at |
 |---|---|---|---|
 | Interactive research (29 runs; culminating run 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | **0.6116, the designated final submission** |
-| Verification run (3 iterations) | frozen research state | 0 | 0.6116 confirmed |
+| Verification run (3 iterations; non-regression check, banked nothing) | frozen research state | 0 | 0.6116 survives re-challenge |
 | Clean-room run (6 iterations) | bare baseline, empty memory | 0 | 0.59744 (+0.0028 over baseline; supplementary demonstration) |
 
 The clean-room agent also refused two configurations whose test scores
 looked better but whose validation did not justify them (its iterations 4
 and 5). Those are the project's fourth and fifth documented refusals of
 test-based selection, and the agent made them alone.
+
+## Serving-assumption ablation (added 30 Aug)
+
+The sequence features assume a streaming feature store. Measured with the
+shipped weights (`code/staleness_ablation.py`), only test featurization
+changing: continuous 0.6116 (+0.0170), daily batch refresh 0.6083
+(+0.0137), frozen at the test boundary 0.5943 (a lower bound distorted by
+train/serve skew). See logs/PROCESS-AUDIT.md for the full reading.

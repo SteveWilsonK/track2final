@@ -8,5 +8,6 @@
 | LOG.jsonl | Machine readable log. Intent records are written before training, results after |
 | IDEAS.md | The agent's idea backlog: banked, dead, and open, each with the run that decided it |
 | demoA_driver_log.jsonl | Driver event stream of the unattended verification run |
-| cleanroom/ | The complete clean-room campaign: its own experiments, logs, driver events, and agent commit list |
-| experiment_scripts/ | The exact code of every numbered experiment, preserved as run |
+| cleanroom/ | The complete clean-room campaign: its own experiments, logs, driver events, agent commit list, and full session transcripts (transcripts/) |
+| experiment_scripts/ | The exact code of every numbered experiment, preserved as run. Kept verbatim as evidence: they assume the kit directory layout, so to execute one, copy it into code/ next to the dataset |
+| PROCESS-AUDIT.md | Findings and corrections from a pre-submission adversarial review, stated plainly |

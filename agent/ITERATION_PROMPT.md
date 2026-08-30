@@ -19,7 +19,8 @@ Execute EXACTLY ONE research iteration, then stop. The driver loops you.
 3. **Run it** from inside the kit directory. Wait for completion.
 4. **Verdict + update**: mark the idea's status in IDEAS.md with the run
    number and one-line reason. If a result BEATS the banked best ON
-   VALIDATION by more than noise, update the banked constant in harness.py
+   VALIDATION by more than noise, update BANKED_VALID in harness.py to the
+   new validation mean (and BANKED to its test mean, for reporting only)
    and append the new recipe to IDEAS.md's "Banked recipe" section.
 5. **Append** a short run section to `logs/RESULTS.md` (hypothesis,
    table, interpretation — match the existing style).

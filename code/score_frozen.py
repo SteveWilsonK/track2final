@@ -10,6 +10,18 @@ Usage:  python3 score_frozen.py        (from the directory holding the code,
 """
 import os, csv, collections
 import numpy as np
+
+def _frozen_dir():
+    """Locate the frozen weights: ./frozen_model first, then
+    ../final_output/frozen_model (the shipped location)."""
+    for c in ('frozen_model',
+              os.path.join('..', 'final_output', 'frozen_model')):
+        if os.path.exists(os.path.join(c, 'fm_seed0.npz')):
+            return c
+    raise FileNotFoundError(
+        'frozen_model not found; expected ./frozen_model or '
+        '../final_output/frozen_model')
+
 from evaluate import evaluate
 from baseline import FM
 from sequences import load_sequenced, encode_rows, BASE, SEQ, DATA
@@ -49,7 +61,7 @@ Xva, yva, uva = enc['valid']; Xte, yte, ute = enc['test']
 
 va_preds, te_preds = [], []
 for seed in range(5):
-    z = np.load(os.path.join('frozen_model', f'fm_seed{seed}.npz'))
+    z = np.load(os.path.join(_frozen_dir(), f'fm_seed{seed}.npz'))
     m = FM(dim, k=16, seed=seed)
     assert m.V.shape == z['V'].shape, \
         f"weight/feature mismatch: {m.V.shape} vs {z['V'].shape}"
