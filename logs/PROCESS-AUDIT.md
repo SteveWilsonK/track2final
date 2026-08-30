@@ -116,3 +116,56 @@ convergence, 0.6116 on the local test split, +0.0170 over the official
 baseline, reproducible from raw data in one command, with a research trail
 of 38 runs in which negatives outnumber wins and five test-favorable
 switches were refused on validation grounds.
+
+## 6. Second review round (30 Aug, evening)
+
+The reviewer re-judged the corrected repository, verified the harness fix
+behaviorally (an adversarial arm with test 0.65 and weak validation cannot
+win), replayed all logged results under the validation rule and confirmed
+the trajectory ends at the shipped checkpoint, and reconciled the
+clean-room token figure against the shipped transcripts to the exact
+number. Two findings from round one were formally withdrawn (section 4).
+The remaining findings were of one type: documents asserting corrections
+or tallies that a grep falsifies. All are now fixed:
+
+- The "never touched test" sentence that section 3 claimed was corrected
+  had survived in logs/RESULTS.md. It is now actually corrected. The irony
+  of an audit document misstating its own corrections is not lost on us;
+  this appendix was written after re-checking every claim below with grep.
+- Tallies reconciled: ITERATION-LOGS.md's closing tally now reads 38 runs
+  across three campaigns, ~75 configurations, 5 refusals. RESULTS.md's
+  freeze-day tally is labeled as point-in-time with the final figures
+  alongside.
+- The promotion rule is now precise in code and prompt: a challenger must
+  beat the incumbent's validation by more than PROMOTION_MARGIN (0.001,
+  the noise scale); ties and sub-noise differences keep the incumbent.
+  This is the rule the refusals actually followed.
+- current_best() no longer walks legacy display labels (which included the
+  refused R29b at 0.61907); it counts only records stamped with the
+  corrected rule tag and floors at the frozen champion's 0.61906.
+- code/replay_verdicts.py ships: it re-derives every historical verdict
+  from validation means alone, writes a non-mutating companion log
+  (logs/LOG-replay.jsonl), and prints the champion trajectory. It ends at
+  the shipped checkpoint (valid 0.61906 / test 0.61164). One intermediate
+  differs from the narrative (R13a briefly leads under this margin before
+  the sequence-feature era); the endpoint is invariant to that choice.
+- The official starter-kit archive now ships in third_party/, and
+  verify_claims.py compares our files against the archive's bytes rather
+  than recorded constants, so the integrity check is self-contained.
+- The random floor is reported as a 5-seed mean alongside the official
+  0.4753; the single-seed 0.4732 in the first version of the script was a
+  seeded example, not a discrepancy.
+- verify_claims.py --full recomputes the five committee singles from the
+  shipped weights and retrains one baseline seed to derive its GAUC and
+  nDCG@5 components, removing the last hardcoded numbers.
+- The verification run's session transcripts now ship
+  (logs/demoA_transcripts/), so its 149,658-token figure reconciles the
+  same way the clean-room figure does.
+- Attribution correction: the dataset symlink removed in an earlier commit
+  was the reviewer's own footprint from their first-round ablation, not
+  our mistake. Our commit message at the time guessed wrong.
+
+Known and accepted, not fixed: the team-contributions section awaits the
+team's text; the frozen-regime row of the staleness table remains a lower
+bound (no model was retrained for that regime); shipped transcripts contain
+local filesystem paths (scanned: no credentials).

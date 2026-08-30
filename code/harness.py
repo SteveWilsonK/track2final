@@ -26,7 +26,11 @@ LOG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                    '..', 'logs', 'LOG.jsonl')
 BASELINE = 0.5950          # reproduced FM baseline, TEST primary (reporting only)
 BASELINE_VALID = 0.6014    # reproduced FM baseline, VALIDATION primary (selection)
-GATE = 0.002               # significance bar; seed noise sigma ~= 0.0008
+GATE = 0.002               # significance bar vs baseline; seed noise sigma ~= 0.0008
+PROMOTION_MARGIN = 0.001   # a challenger must beat the incumbent's validation
+                           # by more than noise; ties and sub-noise diffs keep
+                           # the incumbent (the documented banking rule)
+RULE_TAG = 'valid-v2'      # stamped on records written under the corrected rule
 
 
 def _append(rec):
@@ -35,16 +39,19 @@ def _append(rec):
 
 
 def current_best():
-    """Best banked VALIDATION primary recorded so far (falls back to the
-    validation baseline). Selection and convergence run on validation; test
-    is recorded for audit and never ranks candidates."""
-    best = BASELINE_VALID
+    """Best banked VALIDATION primary recorded so far. Only records written
+    under the corrected rule (RULE_TAG) count; the floor is BANKED_VALID,
+    the validation of the frozen champion. Legacy records keep their
+    original labels as display markers (see logs/PROCESS-AUDIT.md and
+    replay_verdicts.py) and do not feed selection."""
+    best = 0.61906  # BANKED_VALID: the frozen champion (R24b committee)
     if os.path.exists(LOG):
         with open(LOG) as fh:
             for line in fh:
                 r = json.loads(line)
-                if r.get('phase') == 'result' and r.get('verdict') == 'WIN' \
-                        and r.get('valid_mean') is not None:
+                if (r.get('phase') == 'result' and r.get('verdict') == 'WIN'
+                        and r.get('rule') == RULE_TAG
+                        and r.get('valid_mean') is not None):
                     best = max(best, r['valid_mean'])
     return best
 
@@ -73,7 +80,7 @@ def run_experiment(name, hypothesis, rationale, train_fn, seeds=3, config=None):
     d_base = vm - BASELINE_VALID          # VALIDATION delta decides the verdict
     d_best = vm - best
     d_base_test = tm - BASELINE           # test delta, recorded for audit only
-    if d_base > GATE and vm >= best - 1e-9:
+    if d_base > GATE and vm > best + PROMOTION_MARGIN:
         verdict = 'WIN'
     elif d_base > GATE:
         verdict = 'SIGNIFICANT_BUT_NOT_BEST'
@@ -94,7 +101,8 @@ def run_experiment(name, hypothesis, rationale, train_fn, seeds=3, config=None):
            'd_baseline_valid': round(float(d_base), 5),
            'd_baseline_test': round(float(d_base_test), 5),
            'd_best_valid': round(float(d_best), 5),
-           'verdict': verdict, 'wall_s': round(time.time() - t0, 1)}
+           'verdict': verdict, 'rule': RULE_TAG,
+           'wall_s': round(time.time() - t0, 1)}
     _append(rec)
     BANKED_VALID = 0.61906  # banked best on VALIDATION (R24b committee)
     BANKED = 0.6116         # its test primary, for reporting only

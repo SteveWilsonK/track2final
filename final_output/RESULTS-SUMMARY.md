@@ -23,7 +23,9 @@ evaluated once on the test split.
 Score under the official formula (mean over metrics of the absolute delta):
 (0.0215 + 0.0126) / 2 = **+0.0170**.
 
-Context: the attainable range runs from random scoring at 0.4753 to the
+Context: the attainable range runs from random scoring (about 0.475; the
+official statement quotes 0.4753, our seeded examples in verify_claims.py
+average 0.4747) to the
 oracle ceiling at 0.8645. The baseline captures about 31 percent of that
 range. Our submission captures about 37 percent. We derived the ceiling
 arithmetic ourselves (27.1 percent of test users have no positive label,

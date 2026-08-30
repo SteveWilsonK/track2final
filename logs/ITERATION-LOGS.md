@@ -124,8 +124,9 @@ in THIS repo; GAUC/nDCG components in LOG.jsonl):
 
 ## Tally
 
-32 runs · ~70 configurations · 3 banked structural wins (objective,
-sequence features, committee) · 3 documented test-peek refusals ·
+38 runs across three campaigns (29 interactive · 3 verification · 6
+clean-room) · ~75 configurations · 3 banked structural wins (objective,
+sequence features, committee) · 5 documented test-peek refusals ·
 2 diagnosed leakage traps · 1 legality retirement (random-exposure log) ·
 2 error-recovery events, both with zero data loss · final: **0.6116
 (+0.0170 vs published), twice-converged and independently reproduced.**
