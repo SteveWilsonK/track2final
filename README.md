@@ -71,12 +71,20 @@ The three discoveries that carried the score:
   iteration analyzed the champion's residuals, found its worst slice
   (tab=0), hypothesized that stream-wide history misleads on the minority
   surface, and proposed tab_n: the user's prior impression count on the
-  row's surface, label-free and log-bucketed. The mechanism passed its
-  time-shuffle placebo (the gain collapses entirely when the count is
-  detached from its impression), and the pre-committed 5-seed committee
+  row's surface, label-free and log-bucketed. The time-shuffle placebo
+  passed (the gain collapses entirely when the count is detached from its
+  impression), and the pre-committed 5-seed committee
   check promoted it: validation 0.62059 over the incumbent's 0.61906,
   test 0.6143 over 0.6116. The one feature in the submission a human
-  did not think of.
+  did not think of. A sharper control run after promotion, at review
+  request (R37: the identical count computed over surfaces scrambled
+  within each user), then split the mechanism story: 56 percent of the
+  gain survives scrambling, so roughly half the effect needs the true
+  surface and roughly half comes from the partitioned counting structure
+  itself. We revised the claim accordingly — partitioned familiarity, not
+  pure surface familiarity — and the revision is in the belief state and
+  the audit. The promotion is unaffected: it was earned on validation,
+  not on the mechanism story.
 
 Mechanism, proven rather than asserted. Our central causal claim was
 that these features work because of when things happened, not who the user

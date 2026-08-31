@@ -18,6 +18,11 @@
      "valid": 0.62059,
      "test": 0.61429,
      "note": "promoted, campaign 5; designated final submission"
+    },
+    {
+     "run": "R37 surface-scrambled tab_n (discriminating control)",
+     "valid_mean": 0.61849,
+     "finding": "56% of the gain survives surface scrambling: mechanism revised from surface familiarity to partitioned familiarity (about half surface-specific, half counting structure). Promotion unaffected (validation-based)."
     }
    ],
    "control": {

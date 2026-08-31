@@ -32,9 +32,10 @@ rather than isolates the value of the human decisions.
 Result: test primary **0.6143** (GAUC 0.6857, nDCG@5 0.5429), which is
 **+0.0197 over the official baseline** (GAUC +0.0247, nDCG@5 +0.0147, and
 the score under the official formula is the mean of those deltas). The
-record behind it: 46 logged runs (29 interactive research, 3 verification,
+record behind it: 47 logged runs (29 interactive research, 3 verification,
 6 clean-room, 4 in an unattended loop iteration, 4 in the completion run
-that promoted its discovery) covering about 82 configurations, including a
+that promoted its discovery, 1 post-promotion mechanism control) covering
+about 83 configurations, including a
 clean-room run
 where the agent, restarted with zero prior knowledge and zero human input,
 independently reached 0.59744 (+0.0028 over baseline) in 6 iterations and
@@ -61,12 +62,16 @@ agent-executed, as the interventions summary records):
    residuals unattended, found its worst slice (tab=0, where stream-wide
    history reports behavior from a surface with a 10x higher positive
    rate), and proposed tab_n: the user's prior impression count on the
-   row's surface, label-free. The mechanism passed its time-shuffle
-   placebo, the pre-committed 5-seed committee check cleared the
+   row's surface, label-free. The time-shuffle placebo passed, the
+   pre-committed 5-seed committee check cleared the
    promotion margin (validation 0.62059 over the incumbent 0.61906), and
    the completion run converged on it by the official rule: test 0.6143
    over the previous 0.6116. The one feature in the submission no human
-   proposed.
+   proposed. A post-promotion discriminating control (R37,
+   surface-scrambled counts) then split the mechanism: about half the
+   gain needs the true surface, half comes from the partitioned counting
+   structure itself — the claim was revised to match, which is the
+   falsification discipline working on our own newest result.
 
 The final model is deliberately simple: a five seed committee of
 Factorization Machines (k=16), reproducible from raw data in one command in

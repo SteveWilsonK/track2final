@@ -124,10 +124,11 @@ in THIS repo; GAUC/nDCG components in LOG.jsonl):
 
 ## Tally
 
-46 runs across five campaigns (29 interactive · 3 verification · 6
+47 runs across five campaigns (29 interactive · 3 verification · 6
 clean-room · 4 in the 31 Aug v2-loop iteration · 4 in campaign 5, the
-completion run — see the addenda below) ·
-~82 configurations · 4 banked structural wins (objective,
+completion run · 1 post-promotion mechanism control, R37 — see the
+addenda below) ·
+~83 configurations · 4 banked structural wins (objective,
 sequence features, committee, and the loop's own tab_n) · 6 refusals of a
 test-favorable result on
 validation grounds (5 test-peek refusals plus the unattended sub-margin
@@ -284,6 +285,13 @@ converged under the official rule. Every step is in `logs/LOG.jsonl` and
 committed code. The completion run is operator-driven and labeled so —
 its role was bookkeeping of a promotion the loop had already earned, plus
 three genuine convergence-window experiments.
+
+Post-promotion mechanism revision (R37, review-requested): a
+discriminating control — the identical count over surface labels
+scrambled within each user — found 56 percent of tab_n's gain survives,
+so the mechanism was revised from pure surface familiarity to partitioned
+familiarity (about half surface-specific, half counting structure). The
+promotion is unaffected (validation-based); see PROCESS-AUDIT section 11.
 
 Updated tally: the Tally section above now reads 46 runs across five
 campaigns, ~82 configurations. The sixth refusal (R33b's 3-seed decline)

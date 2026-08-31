@@ -283,3 +283,31 @@ frontier) were measured on the R24b champion and are now labeled with
 that provenance; the R24b weights ship at final_output/frozen_model_r24b
 so every one of those numbers remains reproducible. The new champion adds
 one label-free count feature on top of the audited recipe.
+
+## 11. The R37 mechanism revision (31 Aug, after review round 9)
+
+The ninth review round observed that the R33 time-shuffle placebo does not
+discriminate between two live mechanisms for tab_n — surface familiarity
+and bare counting structure — because full detachment destroys both. The
+requested control was run (code/tab_mechanism_control.py, harness record
+R37): the identical count computed over surface labels scrambled within
+each user and split, preserving the chronological counting structure and
+every per-user marginal, destroying only which surface each count tracks.
+
+Result: valid 0.61849 — 56 percent of the R33b gain survives scrambling
+(the pre-committed collapse criterion was under 50 percent surviving). The
+pure surface-familiarity story is therefore refuted as the sole mechanism:
+roughly half the effect needs the true surface, roughly half comes from
+the partitioned counting structure itself (parallel monotone counters add
+positional resolution beyond the global hist_n). With 3-seed noise around
+0.001 the split is approximate — the honest statement is "about half and
+half," not a precise decomposition.
+
+Consequences, applied: the mechanism claim is revised everywhere from
+"surface familiarity" to "partitioned familiarity" (README, project
+description, belief state evidence); the promotion itself is unaffected,
+because banking was decided by the validation margin under the
+pre-committed rule, never by the mechanism narrative. This is the second
+time in the project a falsification control has overturned part of our own
+preferred story (the first shrank the sequence-feature claim to timing),
+and it is recorded with the same prominence as the claims it revised.
