@@ -891,3 +891,191 @@ confirmed and `tab=1` refuted, the next iteration is served `hist=31-100`
 
 **Banked best unchanged: R33c, validation 0.62059 / test 0.61429.** `BANKED_VALID`
 in `harness.py` untouched, submission untouched.
+
+## Run 39 — 31 Aug 2026, campaign 6 iterations 2–3: per-partition exposure counts, and a ranking instrument that was measuring size
+
+*Process note first, because it shapes what this section is.* Iteration 2 took
+the queued hypothesis, wrote `code/partition_familiarity.py`, ran its grounding
+probe, and launched the three arms — then its session ended while they were
+still training, leaving the experiment in flight and unreported. Iteration 3
+inherited a running experiment. It adjudicated **that** run rather than starting
+a second one: the arms were already the queue's top hypothesis, and launching a
+duplicate would have burned the iteration and broken the one-experiment rule.
+So the run below is iteration 2's experiment with iteration 3's verdict,
+post-mortem, and instrument repair. The driver logged both iterations; no human
+touched either.
+
+*Hypothesis picked by the loop.* With `tab=0` confirmed and `tab=1` refuted, the
+analyzer walked to `residual_hist_31-100` — 10,947 users, oracle headroom
+0.13222, mechanism tag `temporal`. `priority.py --recompute` and
+`belief_state.py --next` agreed.
+
+**Restating the hypothesis before spending compute.** That slice scores 0.62154
+against 0.62059 overall — *above* the model's average — and its EV under the old
+measure is exactly 0.0, so all of its headroom is the arithmetic of slice size.
+As with `tab=1`, the only actionable reading is structure *inside* the slice the
+feature set cannot express, and the slice definition names it: `hist_n` is a
+lifetime impression count in six log buckets, the 31-100 bucket spans a 3.2×
+range, and nothing in it says how those impressions were **distributed**.
+
+The champion carries per-author and per-tag *outcome* counts (`auth_hist`,
+`tag_hist` = prior long_views, capped 3+) and no exposure counts for either
+partition. It has the numerator of a per-partition hit rate and not the
+denominator. That missing denominator is exactly what `tab_n` supplied for the
+surface partition — the one feature that has ever won here (+0.0024, R33b) — and
+R37's discriminating control revised its mechanism from surface familiarity to
+**partitioned familiarity**, only about half of it surface-specific. The
+generalisation under test: the winning axis was partitioned exposure *counting*,
+and the tag and author partitions have been left without it.
+
+Grounding probe, **train rows only** (`code/familiarity_diagnostics.py`, output
+in `logs/familiarity_diagnostic.out`). long_view rate by `tag_n` inside each
+stratum of the shipped `tag_hist`:
+
+| `tag_hist` \ `tag_n` | 0 | 1–3 | 4–10 | 11–30 | 31–100 | 100+ | n |
+|---|---|---|---|---|---|---|---|
+| 0 | 0.342 | 0.248 | 0.156 | 0.082 | 0.040 | — | 555,498 |
+| 1 | — | 0.418 | 0.260 | 0.136 | 0.074 | — | 197,238 |
+| 2 | — | 0.507 | 0.351 | 0.188 | 0.090 | — | 109,537 |
+| 3+ | — | 0.586 | 0.491 | 0.370 | 0.242 | 0.125 | 278,839 |
+
+A clean monotone decline of 4.7× to 8.6× inside *every* stratum of the feature
+that is supposed to make it redundant, on 1.1M rows. This is the shape of a
+rate: at a fixed number of prior successes, more prior exposures means a lower
+hit rate. Both fields are narrow (6 and 4 values), so their bilinear form has
+rank 16 over a 4×6 grid — ample to represent the ratio, *if* given the
+denominator.
+
+Features are causal, self-exclusive and **label-free by construction** — they
+count impressions, never outcomes; state updates only after the row is
+featurised, rows visited in each user's chronological order. Pre-committed rule
+written into the script before any arm ran: 3 seeds/arm, selection on validation,
+a win must beat the in-session control by more than PROMOTION_MARGIN (0.001), a
+win triggers the falsification control *first*, and only a control-passing win
+reaches the 5-seed committee check against 0.62059.
+
+| Arm | valid (5 dp) | Δ vs control | test primary | valid GAUC / nDCG@5 | hist=31-100 slice (diag.) |
+|---|---|---|---|---|---|
+| R39-ctrl RICH + `tab_n` (champion control) | 0.61955 | — | 0.6124 ± 0.0007 | 0.6934 / 0.5457 | 0.62227 |
+| R39a + `tag_n` | 0.61822 | −0.00133 | 0.6108 ± 0.0008 | 0.6919 / 0.5446 | 0.62056 |
+| R39b + `tag_n` + `auth_n` | 0.61846 | −0.00109 | 0.6114 ± 0.0013 | 0.6920 / 0.5450 | 0.62095 |
+
+**Verdict: hypothesis REFUTED, no win, no falsification control run, nothing
+banked.** Both arms land below the control, so the pre-committed rule halted
+before the control and the committee — the control exists to interrogate a win,
+and there was none. Both deltas are **under the 0.002 claim bar and are recorded
+as directional only**, not as claimed negatives (unlike R38b's −0.00347). What
+is solid is the *absence of a win*, measured against a control reproducing R33b
+to five decimals on validation from a fourth independent code path. The
+diagnostic slice score moves the same way the overall score does — 0.62227 →
+0.62056 — so the consoling reading that the feature helped the target slice and
+paid for it elsewhere is ruled out.
+
+**Post-mortem: the same screen, falsified a second time and harder.** Iteration
+1 killed the cheap pre-run filter "rank candidates by novel within-user prior
+variance" by showing the loser carried 0.79× the winner's novel signal — the
+same order, opposite outcome. Run 39 is an independent second test, and
+`code/partition_postmortem.py` (label-free: train-estimated rates mapped onto
+valid rows, no training, valid labels never read) runs the *identical*
+instrument, imported rather than rewritten:
+
+| feature | within-user prior var | after regressing on the champion's other fields | novel | outcome |
+|---|---|---|---|---|
+| `tag_n` | 5.702e-04 | 4.871e-04 | 85% (R² 0.15) | **lost**, −0.00133 |
+| `auth_n` | 4.616e-04 | 3.348e-04 | 73% (R² 0.27) | — |
+| `tab_n` | 3.728e-04 | 3.656e-04 | 98% (R² 0.02) | **won**, +0.0024 |
+
+The loser carries **1.33× the winner's novel within-user signal**. Two other
+label-free screens agree with it and are equally wrong: `tag_n` varies within
+73.2% of validation users against `tab_n`'s 43.7% (a within-user metric can only
+score a feature that varies within a user), and restricted to the slice that
+raised the hypothesis it is 91% novel against `tab_n`'s 95%. So the screen has
+now failed in both directions — it rated one loser *equal* to the winner and
+rates this one *above* it. It is not imprecise; it is uninformative, and this
+section is the second nail.
+
+The redundancy explanation fails too, and in a direction worth recording.
+Conditioning `tag_n` on the shipped `tag_hist` does not shrink its rate variance,
+it **multiplies it by 12** (0.00057 → 0.00685; `hist_n` −11%, `hist30` −18%,
+`tab_n` −80%). `tag_hist` *masks* the exposure effect marginally rather than
+absorbing it — heavy exposure and heavy prior success travel together, so the
+marginal decline understates a much steeper conditional one. The information the
+feature carries is real, large, non-redundant, novel, and within-user, and the
+model was still worse with it. The only instrument that measures what a narrow
+field costs in the shared embedding geometry (Run 32's min(k_j, k_l) result) is
+the 3-seed run.
+
+**One candidate discriminator, explicitly untested.** The two constructions
+differ in one structural way. For `tab_n` the partition key is a field the model
+holds (`tab` ∈ BASE); for `auth_n` it is too (`author_id`); for `tag_n` the tag
+identity is **not in the feature set at all** — `tag_hist` is an outcome count,
+not the tag. A per-partition count is a conditional quantity ("prior impressions
+of *this* partition"), and `tag_n` may be an integer the model cannot bind to
+what it counts. The only support is directional and far under noise: `auth_n`,
+whose key *is* a field, recovered +0.00024 on top of `tag_n` despite being
+non-zero on just 6.2% of rows and constant within 75% of validation users. It is
+written into the belief state as a candidate, not a finding.
+
+**Instrument repair: the queue was ranking slices by size.** Refuting this
+hypothesis exposed a defect in the ranking, not just in the intervention. EVo
+(oracle headroom) is an upper bound, and *every* slice has one roughly in
+proportion to its size — perfectly ranking any large chunk of the validation set
+helps whether or not the model is bad there. The loop paid for that twice: it
+spent this iteration on a slice scoring **above** the model's average with an
+EV(old) of exactly 0.0, and the next pick under the old rule was `hist=11-30`,
+the same shape (EV(old) 0.00153), while `dur=8` — where the model scores 0.518
+against 0.621 — sat at rank 4.
+
+**EVx** (v3) subtracts a matched null: the oracle headroom of a slice holding
+the *same number of each user's rows*, drawn at random from that user's rows.
+Which users are touched and how concentrated the slice is per user — the two
+things a per-user metric's headroom is mechanically driven by — are preserved;
+which rows are in it is destroyed. It is the same construction as the
+falsification controls (preserve the marginals, destroy the attachment, read off
+what the attachment was worth), now pointed at the loop's own hypothesis queue.
+It is also *signed*: a slice the model handles unusually well scores negative,
+which EVo cannot express. The self-test is a regression test for the exact
+defect — a small broken slice that EVo ranks **last** of four and EVx ranks
+first. A first attempt that dealt each user's row-count out to *other* users was
+built and discarded: the real rows-per-user distribution is skewed enough that
+the per-user cap bound on most slices, undersizing the null and biasing EVx up
+precisely on the large slices it was meant to demote. The measured failure is
+why the shipped null reshuffles within each user instead.
+
+| slice | primary | users | EV(old) | EVo | **EVx** |
+|---|---|---|---|---|---|
+| tab=1 | 0.59710 | 20,119 | 0.02111 | 0.21129 | 0.00399 |
+| dur=4 | 0.54043 | 8,023 | 0.02874 | 0.04391 | **0.00221** |
+| tab=4 | 0.56396 | 4,209 | 0.01065 | 0.02730 | 0.00201 |
+| dur=6 | 0.53034 | 7,670 | 0.03093 | 0.04226 | 0.00156 |
+| dur=7 | 0.52610 | 8,749 | 0.03694 | 0.04791 | 0.00145 |
+| dur=3 | 0.53835 | 8,125 | 0.02986 | 0.04753 | 0.00086 |
+| dur=8 | 0.51767 | 9,093 | 0.04182 | 0.04839 | 0.00082 |
+| hist=11-30 | 0.61577 | 7,107 | 0.00153 | 0.05027 | 0.00059 |
+
+`hist=31-100`, the slice this run just spent itself refuting, drops out of the
+top eight entirely: 95% of `tab=1`'s apparent headroom and effectively all of
+the `hist` buckets' was size. The duration slices, where the model really does
+score 0.52–0.54 against 0.621, now occupy the queue. **Stated caveat:** the null
+cannot reshuffle a user whose rows lie entirely inside the slice, and that
+locked share is high for the `hist` buckets (88% for `hist=31-100`, 73% for
+`hist=11-30`), so their EVx is biased toward zero and their demotion is only
+partly earned by the measure — the analyzer prints this warning per slice rather
+than hiding it. Two independent things say the demotion is right anyway: this
+run refuted `hist=31-100` by experiment, and `hist=11-30`'s EV(old) of 0.00153
+says the same from the unbiased direction. The `dur` and `tab` slices now at the
+top trip no warning.
+
+The stale `residual_hist_11-30` record the superseded ranking had just written
+was dropped rather than left in the queue: its `expected_value` is in EVo units,
+which `next_open()` would have compared against the new EVx units and always
+preferred. It had never been tested. The units change is documented in the
+analyzer's docstring; every pre-v3 record is resolved, so nothing compares across
+the two conventions. The next iteration is served `residual_dur_4` (EVx 0.00221,
+mechanism tag **capacity** — the first time campaign 6 reaches the
+`capacity_noise` branch of `controls.py`).
+
+**Banked best unchanged: R33c, validation 0.62059 / test 0.61429.**
+`BANKED_VALID` in `harness.py` untouched, submission untouched. Two iterations,
+two refutations, and the loop's ranking instrument is measurably better than it
+was this morning.

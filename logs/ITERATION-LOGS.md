@@ -124,11 +124,11 @@ in THIS repo; GAUC/nDCG components in LOG.jsonl):
 
 ## Tally
 
-50 runs across six campaigns (29 interactive · 3 verification · 6
+53 runs across six campaigns (29 interactive · 3 verification · 6
 clean-room · 4 in the 31 Aug v2-loop iteration · 4 in campaign 5, the
-completion run · 1 post-promotion mechanism control, R37 · 3 in campaign 6,
-the session-depth refutation — see the addenda below) ·
-~86 configurations · 4 banked structural wins (objective,
+completion run · 1 post-promotion mechanism control, R37 · 6 in campaign 6,
+the session-depth and partition-exposure refutations — see the addenda
+below) · ~89 configurations · 4 banked structural wins (objective,
 sequence features, committee, and the loop's own tab_n) · 6 refusals of a
 test-favorable result on
 validation grounds (5 test-peek refusals plus the unattended sub-margin
@@ -346,3 +346,63 @@ outright refutation of an analyzer-generated hypothesis — the negative and
 its post-mortem are the iteration's product.
 
 Updated tally: **50 runs across six campaigns, ~86 configurations.**
+
+## Campaign 6, iterations 2–3 (31 Aug, late): a second refutation, and the queue's ranking rebuilt
+
+Two driver iterations, one experiment. Iteration 2 took the queued hypothesis,
+wrote the script, ran the grounding probe and launched the arms; its session
+ended while they were still training. Iteration 3 found the experiment in
+flight and adjudicated **it** rather than launching a duplicate — the arms were
+already the queue's top hypothesis, and a second run would have burned the
+iteration and broken the one-experiment rule. Artefacts: `logs/LOG.jsonl` (runs
+R39-ctrl / R39a / R39b), `code/partition_familiarity.py`,
+`code/familiarity_diagnostics.py`, `code/partition_postmortem.py`,
+`agent/residual_analysis.py` (v3), `logs/partition_familiarity.out`,
+`logs/familiarity_diagnostic.out`, `logs/partition_postmortem.out`,
+`logs/residual_analysis_v3.out`, `agent/belief_state.json`.
+
+1. **Observed.** With `tab=0` confirmed and `tab=1` refuted, the analyzer walked
+   to `residual_hist_31-100` (10,947 users, oracle headroom 0.13222).
+   `priority.py --recompute` and `belief_state.py --next` agreed.
+2. **Interrogated it before spending.** The slice scores 0.62154 against 0.62059
+   overall — *above* average, EV(old) exactly 0.0 — so its headroom is slice
+   size. The actionable reading: `hist_n` is a lifetime count that says nothing
+   about how a history was distributed.
+3. **Generalised the one feature that ever won.** The champion holds per-partition
+   *outcome* counts and no exposure counts — the numerator of a hit rate without
+   the denominator. `tab_n` is exactly that denominator for the surface
+   partition. Train-only probe: long_view rate falls 4.7–8.6× with `tag_n`
+   inside every stratum of `tag_hist`, on 1.1M rows.
+4. **Tested** against a fresh in-session champion control: R39-ctrl 0.61955,
+   R39a (+`tag_n`) 0.61822, R39b (+`tag_n` +`auth_n`) 0.61846.
+5. **Refuted by the pre-committed rule.** Both arms below control → no win, so
+   no falsification control and no committee. Both deltas sit under the 0.002
+   bar and are recorded as **directional only**, not claimed negatives. The
+   control reproduces R33b to five decimals from a fourth independent code path.
+6. **Killed the same screen a second time, harder.** On the identical instrument
+   iteration 1 used, `tag_n` carries 4.871e-04 of novel within-user prior
+   variance against the winning `tab_n`'s 3.656e-04 — the loser at **1.33×** the
+   winner. It also varies within more users (73.2% vs 43.7%). Iteration 1's
+   loser scored 0.79×; the screen now fails in both directions. Redundancy is
+   ruled out backwards: conditioning `tag_n` on `tag_hist` multiplies its rate
+   variance by 12 rather than absorbing it.
+7. **Repaired the loop, again.** The refutation exposed that the queue was
+   ranking by *size*: EVo grows with any large slice. **EVx** subtracts a
+   matched null (same per-user row counts, rows drawn at random within each
+   user) and keeps only the headroom attributable to the model being
+   differentially wrong there — the falsification-control construction turned on
+   the loop's own hypothesis queue, and signed, so a slice the model handles
+   unusually well scores negative. The self-test is now a regression test for
+   the exact defect: a small broken slice EVo ranks last of four and EVx ranks
+   first. A first null that dealt row counts to *other* users was built,
+   measured, and discarded — the skewed rows-per-user distribution made it
+   infeasible. Under v3 the refuted slice leaves the top eight and the duration
+   slices (model at 0.52–0.54 vs 0.621) take the queue; next iteration is served
+   `residual_dur_4`, mechanism tag `capacity`.
+
+Zero manual interventions. Nothing banked; champion and submission unchanged at
+validation 0.62059 / test 0.61429. Two campaign-6 iterations, two refutations of
+analyzer-generated hypotheses, and two instrument repairs found by the
+refutations rather than by inspection.
+
+Updated tally: **53 runs across six campaigns, ~89 configurations.**

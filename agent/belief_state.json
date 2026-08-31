@@ -65,6 +65,50 @@
    "control": null,
    "expected_value": 0.2128,
    "cost_estimate_s": null
+  },
+  {
+   "id": "residual_hist_31-100",
+   "claim": "slice hist=31-100 scores 0.6215 vs overall 0.6206 across 10947 users; a feature or prior targeted at this slice should close part of the gap; oracle headroom on the overall metric 0.1322 (28% of the slice's users are all-negative inside it, so the slice-restricted score understates the model)",
+   "mechanism": "temporal",
+   "status": "refuted",
+   "evidence": [
+    {
+     "run": "R39b + tag_n + auth_n (3 seeds)",
+     "valid_mean": 0.61846,
+     "test_mean": 0.61138,
+     "control_run": "R39-ctrl RICH + tab_n (champion control)",
+     "control_valid": 0.61955,
+     "delta_vs_control": -0.00109
+    },
+    {
+     "run": "R39a + tag_n (3 seeds)",
+     "valid_mean": 0.61822,
+     "test_mean": 0.61083,
+     "control_run": "R39-ctrl RICH + tab_n (champion control)",
+     "control_valid": 0.61955,
+     "delta_vs_control": -0.00133,
+     "note": "The tag partition denominator, the arm the hypothesis was really about. Below control on validation and on both metric components (valid GAUC 0.69185 vs 0.69341, nDCG@5 0.54459 vs 0.54568) and on the hist=31-100 diagnostic slice itself (0.62056 vs 0.62227), so the loss is not a trade of the slice against everything else. Under the 0.002 claim bar, so recorded as directional, not as a claimed negative."
+    },
+    {
+     "run": "label-free post-mortem (no training, code/partition_postmortem.py)",
+     "finding": "Second and stronger falsification of the additive-prior screen. On the identical instrument iteration 1 used, tag_n carries 4.871e-04 of NOVEL within-user prior variance (85% novel after regression on the champion) against the winning tab_n's 3.656e-04: the loser has 1.33x the winner's novel signal, and it varies within 73.2% of valid users against tab_n's 43.7%. Iteration 1's loser scored 0.79x on the same axis. The screen now fails in both directions -- it rated one loser equal to the winner and rates this one ABOVE the winner -- so it is not merely imprecise, it is uninformative. Redundancy is separately ruled out and in the surprising direction: conditioning tag_n on the shipped tag_hist INCREASES its rate variance 12x (0.00057 -> 0.00685), i.e. tag_hist masks the exposure effect marginally rather than absorbing it.",
+     "scope": "What is refuted is this INTERVENTION and the generalisation behind it (that tab_n won because it was a partitioned exposure count, so the same construction on the tag and author partitions should also win). The slice's headroom (0.13222) remains an arithmetic fact about slice size; the slice scores ABOVE the model average and was never a defect.",
+     "candidate_discriminator_untested": "The two constructions differ in one structural way: the partition KEY is a field the model can condition on for tab (BASE carries tab) and for author (author_id), but tag identity is not in the feature set at all -- tag_hist is an outcome count, not the tag. A per-partition count is a conditional quantity, and tag_n may be unbindable to what it counts. Weak directional support: auth_n, whose key IS a field, recovered +0.00024 on top of tag_n despite being constant within 75% of valid users. Far under noise. Untested, and offered as the next candidate, not as a finding."
+    }
+   ],
+   "control": null,
+   "expected_value": 0.13222,
+   "cost_estimate_s": null
+  },
+  {
+   "id": "residual_dur_4",
+   "claim": "slice dur=4 scores 0.5404 vs overall 0.6206 across 8023 users; a feature or prior targeted at this slice should close part of the gap; oracle headroom on the overall metric 0.0439, of which 0.0022 is EXCESS over a matched null slice (same users, same per-user row counts, rows drawn at random) and therefore attributable to the model rather than to slice size; 56% of the slice's users are all-negative inside it, so the slice-restricted score understates the model",
+   "mechanism": "capacity",
+   "status": "proposed",
+   "evidence": [],
+   "control": null,
+   "expected_value": 0.00221,
+   "cost_estimate_s": null
   }
  ]
 }

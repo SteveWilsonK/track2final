@@ -1,0 +1,21 @@
+Iteration complete.
+
+**What ran.** The residual analyzer, re-pointed at the current champion (R33c, valid 0.62059), returned `residual_tab_1` (slice tab=1, 20,119 users, oracle headroom 0.2113); `priority.py` and `belief_state.py --next` agreed, so that is what I took. Since tab=1 is 73% of impressions — making its headroom largely arithmetic — I probed for structure *inside* the slice on train rows only and found a clean one: long_view rate falls 2.9× monotonically with within-visit position (0.418 at session start → 0.143 at 50+), and nothing shipped encodes depth-within-visit (`gap` is a single interval; `hist_n`/`tab_n` are lifetime counts that never reset). Tagged temporal, which raises the promotion bar rather than lowering it.
+
+**Result — refuted.**
+
+| Arm | valid | Δ vs control | test |
+|---|---|---|---|
+| R38-ctrl RICH + tab_n | 0.61955 | — | 0.6124 ± 0.0007 |
+| R38a + `sess_pos` | 0.61850 | −0.00105 | 0.6116 ± 0.0004 |
+| R38b + `sess_pos` + `sess_hit` | 0.61706 | **−0.00347** | 0.6111 ± 0.0009 |
+
+Both arms below control, so the pre-committed rule halted before the falsification control and the committee. R38b's −0.00347 clears the 0.002 gate across three seeds and both metric components and is claimed as a negative; R38a's −0.00105 is directional only. R38-ctrl reproduces R33b to five decimals from an independent code path.
+
+**The useful part is the post-mortem.** Three label-free diagnostics (`code/session_depth_diagnostics.py`) kill the consoling explanations: the effect isn't merely redundant (a monotone decline survives inside every stratum of gap/hist10/hist30), isn't a between-user artifact (77% of its prior variance is within-user — the only channel the metric scores), and isn't too small (54% novel after the champion's features, 8.19e-05 — against `tab_n`, the feature that *won*, at 86% novel and 1.04e-04). The loser carries 0.79× the winner's novel within-user signal. So the tempting cheap screen — rank candidate features by novel within-user prior variance — would have rated them alike, and is falsified as a pre-run filter.
+
+**Instrument repair.** Refuting the top slice exposed a liveness bug: live mode always proposed `rep[0]` and `propose()` never revives a resolved record, so the queue would have been permanently empty from iteration 2. `first_unresolved()` now walks to the first unresolved slice, with three new self-test assertions; the next iteration is served `hist=31-100` (EVo 0.13222).
+
+Champion, `BANKED_VALID` and submission untouched (valid 0.62059 / test 0.61429). Everything committed and pushed (`ad3f95e`, `76f7f48`).
+
+ITERATION RESULT: R38 within-session position (sess_pos / sess_hit) | 0.6116 | REFUTED | Real 2.9× fatigue signal, 77% within-user and 54% novel, still costs the model — and the prior-variance screen that would have endorsed it is now falsified.
