@@ -182,9 +182,7 @@ the designated submission.
    for about two points of unbiased-exposure score (−0.017 for +0.034);
    the second step (0.5 to 1.0) trades at only about 0.3:1 (−0.019 for
    +0.006), so most of the recoverable preference signal comes from mild
-   debiasing. Exposure-debiased training
-   roughly doubles the model's advantage on true-preference ranking while
-   losing on the logged-exposure metric — quantifying how much of
+   debiasing. The curve quantifies how much of
    standard-log performance is exposure-bias fitting rather than
    preference modeling. The designated submission remains lambda = 0
    because the competition scores the logged-exposure test; a production
