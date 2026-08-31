@@ -192,6 +192,14 @@ All campaigns, side by side — none resumed after converging:
 | Clean-room (6 runs) | 6 | 1 h 48 m | validation-ε convergence |
 | v2-loop iteration (R33) | 1 | ~18 min of session work | driver wrapper fault (disclosed) |
 | Campaign 5 (R33c + R34–R36) | 4 | ~13 min measured training | validation-ε convergence → final freeze |
+| Campaign 6 (R38–R39, unattended) | 3 | 49 min 11 s (driver-timed, 18:02:23–18:51:34) | validation-ε convergence |
+
+Campaign 6 counting note, same convention as the clean-room disclosure:
+its iteration 2 ended without an adjudicated experiment (the session
+launched arms and exited; iteration 3 adjudicated them) and still counted
+toward the below-ε streak. The official rule counts iterations without
+improvement, so the convergence stands; under a stricter result-bearing
+reading the run would have needed one more iteration. Stated either way.
 
 Scored checkpoint = validation-best at convergence: **R33c** (campaign 5;
 valid 0.62059 / test 0.61429), evaluated once on the test split. Until 31
@@ -293,8 +301,10 @@ so the mechanism was revised from pure surface familiarity to partitioned
 familiarity (about half surface-specific, half counting structure). The
 promotion is unaffected (validation-based); see PROCESS-AUDIT section 11.
 
-Updated tally: the Tally section above now reads 46 runs across five
-campaigns, ~82 configurations. The sixth refusal (R33b's 3-seed decline)
+Running tally as of campaign 5: 46 runs across five campaigns, ~82
+configurations (superseded by the campaign 6 addenda below; the Tally
+section above carries the final figures). The sixth refusal (R33b's
+3-seed decline)
 stands as a correct rule-following decision at its stage; it was
 superseded, not reversed, when the committee check cleared the bar.
 

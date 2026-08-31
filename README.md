@@ -162,7 +162,7 @@ Six campaigns were run. Together they cover the autonomy spectrum:
 | Clean-room run (6 iterations, unattended, empty memory) | bare baseline | 0 | 0.59744, its own discovery, +0.0028 over baseline |
 | v2-loop iteration (31 Aug, unattended; ended by a driver fault after one full iteration) | frozen state + belief state | 0 during the iteration | produced the tab_n hypothesis, its passing placebo, and a sub-margin 3-seed decline |
 | Campaign 5, completion run (4 iterations, operator-driven) | banked state | operator-driven by design | **0.6143, the designated final submission** (banked the loop's tab_n at the pre-committed committee check, then 3 sub-epsilon iterations) |
-| Campaign 6 (31 Aug late, unattended; 1 iteration) | banked state + belief state | 0 | nothing banked: refuted its own top hypothesis (within-session fatigue, R38), claimed the negative, and repaired a queue-liveness bug it found by refuting |
+| Campaign 6 (31 Aug evening, unattended; 3 iterations, converged by the official rule in 49 minutes) | banked state + belief state | 0 | nothing banked, champion held: refuted its own top two hypotheses (session depth R38, partition-count generalisation R39), claimed the negatives, and repaired its own hypothesis queue — it discovered the expected-value ranking favoured slice SIZE, built a matched-null corrected measure (EVx) with a regression self-test, and re-ranked the queue |
 
 The designated final submission is 0.6143: the interactive campaign's
 recipe plus the autonomous loop's own promoted discovery. The verification,

@@ -32,14 +32,18 @@ rather than isolates the value of the human decisions.
 Result: test primary **0.6143** (GAUC 0.6857, nDCG@5 0.5429), which is
 **+0.0197 over the official baseline** (GAUC +0.0247, nDCG@5 +0.0147, and
 the score under the official formula is the mean of those deltas). The
-record behind it: 47 logged runs (29 interactive research, 3 verification,
+record behind it: 53 logged runs (29 interactive research, 3 verification,
 6 clean-room, 4 in an unattended loop iteration, 4 in the completion run
-that promoted its discovery, 1 post-promotion mechanism control) covering
-about 83 configurations, including a
+that promoted its discovery, 1 post-promotion mechanism control, 6 in a
+final converged unattended campaign) covering
+about 89 configurations, including a
 clean-room run
 where the agent, restarted with zero prior knowledge and zero human input,
 independently reached 0.59744 (+0.0028 over baseline) in 6 iterations and
-1 hour 48 minutes.
+1 hour 48 minutes, and a final unattended campaign (campaign 6, 3
+iterations, 49 minutes, converged by the official rule) in which the agent
+refuted its own top two hypotheses, held the champion, and repaired a
+measurable bias in its own hypothesis-ranking instrument.
 
 The three discoveries that carried the score (all found and implemented by
 the agent; the second family's exploration was human-permitted and

@@ -311,3 +311,40 @@ pre-committed rule, never by the mechanism narrative. This is the second
 time in the project a falsification control has overturned part of our own
 preferred story (the first shrank the sequence-feature claim to timing),
 and it is recorded with the same prominence as the claims it revised.
+
+## 12. Campaign 6 (31 Aug evening), audited
+
+The final unattended campaign, run on the repaired driver (session output
+to files, process-group kill on timeout — the campaign-4 wedge cannot
+recur). Driver-timed: 3 iterations, 18:02:23 to 18:51:34, converged by
+the official rule with zero human input after launch. Nothing was banked;
+the champion and submission are untouched (validation 0.62059 / test
+0.61429), which was verified after the run by re-deriving the trajectory
+(replay_verdicts.py) and re-reading BANKED_VALID.
+
+What the campaign produced is negatives and instrument repairs, and both
+are the point. Iteration 1 took the analyzer's top hypothesis (tab=1
+session depth), grounded it on train-only data, tested it, refuted it by
+the pre-committed rule, and diagnosed why the plausible pre-filter that
+would have endorsed it is not trustworthy. Iterations 2-3 (one experiment
+across two driver iterations — the iteration-2 session exited with its
+arms still training, and iteration 3 adjudicated the in-flight experiment
+rather than duplicating it) refuted the partition-count generalisation
+(tag_n/auth_n), and the refutation exposed a real defect in the loop's
+own instrument: the expected-value queue was ranking residual slices by
+size, so an above-average slice with zero collectable headroom reached
+the top. The agent replaced the measure with a matched-null version
+(EVx), shipped a regression self-test for the exact defect, and
+documented a discarded null design rather than hiding it.
+
+Counting note, stated as with the clean-room run: iteration 2 counted
+toward the below-epsilon streak without an adjudicated experiment. The
+official rule counts iterations without improvement, so the convergence
+stands; a stricter result-bearing reading would require one more
+iteration. Both readings are in ITERATION-LOGS.
+
+Authorship: every hypothesis, experiment, refutation, post-mortem, and
+instrument repair in this campaign is the agent's, committed by its own
+sessions with agent-prefixed messages (ad3f95e, e070d48, 76f7f48). The
+operator's contributions were the pre-launch driver fix and this audit
+section, written after convergence.

@@ -59,6 +59,7 @@ training is single machine laptop CPU, numpy only.
 | Interactive culminating run (iterations 17 to 27) | 11 | at most 1 h 38 m measured | not separately metered (shared a supervised session) | n/a |
 | v2-loop iteration (31 Aug, ended by a driver fault) | 1 | about 18 min of session work | not fully metered (driver fault lost the session tail) | n/a |
 | Campaign 5 completion run (operator-driven) | 4 | about 13 min measured training | no agent sessions (scripted experiments through the harness) | n/a |
+| Campaign 6 (unattended, evening of 31 Aug) | 3 | 49 min 11 s (driver-timed) | session outputs ship in agent/; token usage not separately metered for this run | n/a |
 
 All runs terminated by the official convergence rule (epsilon 0.002, N 3,
 on validation), inside the 50 iteration cap and the 6 hour ceiling.
@@ -80,6 +81,7 @@ the scored submission and should not be averaged with it.
 | Clean-room run (6 iterations) | bare baseline, empty memory | 0 | 0.59744 (+0.0028 over baseline; supplementary demonstration) |
 | v2-loop iteration (31 Aug, 1 iteration; see ITERATION-LOGS addendum) | frozen research state + belief state | 0 | full loop demonstrated: residual analysis -> mechanism hypothesis -> experiment (+0.0024 over control) -> placebo falsification -> sub-margin 3-seed decline |
 | Campaign 5, completion run (4 iterations, operator-driven; see ITERATION-LOGS) | banked state | operator-driven by design | **0.6143, the designated final submission** (the loop's tab_n banked at the pre-committed 5-seed committee check, then three sub-epsilon iterations) |
+| Campaign 6 (3 iterations, unattended, 49 min; see ITERATION-LOGS) | banked state + belief state | 0 | converged by the official rule with nothing banked: refuted its own top two hypotheses (R38 session depth, R39 partition-count generalisation), claimed the negatives with post-mortems, and repaired a size bias it found in its own hypothesis-ranking measure |
 
 The clean-room agent also refused two configurations whose test scores
 looked better but whose validation did not justify them (its iterations 4
