@@ -124,8 +124,8 @@ Three properties of the process matter as much as the score:
   convergence under the official rule, restarting crashes automatically
   (the organizers ruled restarts are not interventions). The interactive
   campaign needed 3 strategic human decisions in total, enumerated in
-  `logs/INTERVENTIONS.md`. The three unattended campaigns needed zero
-  during their iterations; the final completion run was operator-driven
+  `logs/INTERVENTIONS.md`. The four unattended campaigns needed zero
+  during their iterations; the completion run (campaign 5) was operator-driven
   bookkeeping of a promotion the loop had already earned, documented
   step by step.
 
