@@ -194,6 +194,18 @@ All campaigns, side by side — none resumed after converging:
 | Campaign 5 (R33c + R34–R36) | 4 | ~13 min measured training | validation-ε convergence → final freeze |
 | Campaign 6 (R38–R39, unattended) | 3 | 49 min 11 s (driver-timed, 18:02:23–18:51:34) | validation-ε convergence |
 
+Convergence-rule formalization note. The official clause ("no validation
+improvement above ε for N consecutive iterations") admits two
+formalizations: per-step (each of the last N banked gains ≤ ε — what
+driver.py implements) and cumulative (best of the last N vs best before
+that window ≤ ε). The two diverge only on a steady stream of sub-ε
+improvements, which never occurred here: every improvement ever banked
+exceeded ε, so every converged campaign's closing window contains zero
+banked gain (verifiable in the driver logs: Demo A 0/0/0, clean-room
+0/0/0 after its reset, campaigns 5 and 6 0/0/0), and both formalizations
+return the identical verdict on every declared convergence. Disclosed
+rather than retroactively reimplemented.
+
 Campaign 6 counting note, same convention as the clean-room disclosure:
 its iteration 2 ended without an adjudicated experiment (the session
 launched arms and exited; iteration 3 adjudicated them) and still counted
