@@ -91,6 +91,19 @@ touches the designated submission; the frozen checkpoint is unchanged.
    as the deployable-cadence number: 94 percent of the headline gain
    survives when the model is trained for the serving regime.
 
+1b. Frozen-batch retraining (`code/protocolB_retrain.py`, added 31 Aug),
+   completing the freshness curve at its strict end: history frozen at
+   the validation/test boundary (no test-window feedback of any kind),
+   with validation rows featurized frozen at the train boundary so model
+   selection happens under serving-matched staleness. Result: valid
+   0.6038 / test 0.5979 (+0.0033 over baseline; singles 0.5967–0.5981).
+   Retraining recovers +0.0036 of the earlier mismatch-penalized lower
+   bound (0.59429). This is the fully-conservative number: in this regime
+   no test-row feature can depend on any test-window outcome, so it holds
+   under the strictest possible reading of test isolation, and the recipe
+   still beats the official baseline there. The measured freshness curve
+   is monotone: frozen +0.0033, daily +0.0160, continuous +0.0170.
+
 2. Unbiased evaluation on random exposure (`code/unbiased_eval.py`):
    the frozen committee scored on 897,721 test-window impressions from
    log_random, where videos were exposed uniformly at random (no selection
@@ -123,10 +136,12 @@ touches the designated submission; the frozen checkpoint is unchanged.
    and serving reads are O(1) lookups. Backfill is one chronological pass
    over the log (the shipped scripts perform it in about two minutes,
    single core, for the 1.4M-impression stream, data load included). The
-   freshness trade between the two measured cadences is about 0.001
-   primary (streaming +0.0170 vs daily-batch retrained +0.0160). We do
-   not extrapolate a per-day rate beyond them: the only longer-lag point
-   (the frozen row) is confounded by train/serve mismatch.
+   freshness trade between the two deployable cadences is about 0.001
+   primary (streaming +0.0170 vs daily-batch retrained +0.0160). With the
+   frozen-batch retrain (1b) the curve now has a properly-trained point at
+   its strict end too: +0.0033 with no test-window feedback at all. We
+   still do not fit a per-day rate — three cadences is a shape, not a
+   model.
 
 ## Research extension (31 Aug, pre-submission night)
 

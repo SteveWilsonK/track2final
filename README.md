@@ -98,10 +98,15 @@ weights (`code/staleness_ablation.py`):
 | Continuous updates (as submitted) | 0.6116 | +0.0170 |
 | Daily batch refresh, shipped weights unmodified | 0.6083 | +0.0137 |
 | Daily batch refresh, committee retrained for the regime (`daily_retrain.py`) | 0.6106 | +0.0160 |
-| Frozen at the test boundary (lower bound; train/serve skew) | 0.5943 | −0.0003 |
+| Frozen at the test boundary, shipped weights unmodified (train/serve skew) | 0.5943 | −0.0003 |
+| Frozen at the test boundary, committee retrained for the regime (`protocolB_retrain.py`, 31 Aug) | 0.5979 | +0.0033 |
 
 94 percent of the gain survives a daily refresh cadence when the model is
-trained for it; 80 percent survives even without retraining.
+trained for it; 80 percent survives even without retraining. In the
+strictest regime — label-derived history frozen before the test window, so
+no test-row feature can depend on any test-window outcome — the retrained
+committee still beats the official baseline by +0.0033, which is the
+package's fully-conservative number under any reading of test isolation.
 
 Separately, on the dataset's randomly-exposed impressions (897,721
 test-window rows with no recommender selection bias; evaluation only, per
