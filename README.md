@@ -272,7 +272,7 @@ Expected primary improvement over the reproduced baseline:
 
 ### Run the autonomous research loop
 
-From the repository root, with the project's configured Claude Code integration:
+From the repository root, with the research agent environment configured:
 
 ```bash
 python3 agent/driver.py
@@ -323,12 +323,6 @@ Autonomy also has a boundary. The clean-room, verification, v2-loop, and later u
 
 Given more time, we would test richer models over ordered user histories, examine training methods that use random-exposure data without violating time order, and add more automatic checks inside each research iteration.
 
-## Use of AI-assisted development
-
-We used Claude Code as an assistant during parts of the project. It supported activities such as discussing research ideas, suggesting or reviewing code, helping run experiments, and organizing research records. It did not replace the team's engineering and research work. The team designed the project, made implementation and experimental decisions, checked results, debugged the system, interpreted the evidence, and prepared the final submission.
-
-Some experiments were intentionally run through an autonomous research loop. In those runs, Claude-based tooling formed part of the experimental system being studied. That is separate from claiming that Claude wrote the entire project. The repository combines team-written work, team-directed AI-assisted work, and clearly identified autonomous research runs.
-
 ## Team contributions
 
 ### Steve Wilson Koesasih: Autonomous research system and experimentation
@@ -349,4 +343,4 @@ Tristan worked on transferring the model to the larger KuaiRand-1K dataset and o
 
 ## Repository
 
-https://github.com/trisbk/Bridges-Techjam-Submission/tree/main
+https://github.com/trisbk/Bridges-Techjam-Submission
