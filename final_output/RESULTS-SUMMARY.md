@@ -52,7 +52,7 @@ on validation), inside the 50 iteration cap and the 6 hour ceiling.
 Model training inside an iteration is a small share of wall-clock (about 40
 to 90 seconds per 3 seed experiment). The cost is agent reasoning.
 
-## The three campaigns side by side
+## The campaigns side by side
 
 To be explicit: **the designated final submission is 0.6116**, the
 converged checkpoint of the interactive campaign's culminating run. The
