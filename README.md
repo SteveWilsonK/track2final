@@ -270,11 +270,11 @@ Human team roles:
 
 - [NAME], [role: e.g. project direction, research decisions, submission]
 - [NAME], [role: e.g. repository management, verification runs]
-- [NAME], [role: e.g. write-up review, video]
-- [NAME], [role]
-- [NAME], [role]
+- [NAME], [role: e.g. write-up review, documentation]
+- [NAME], [role: e.g. logs curation, verification]
 
-(Team: replace the placeholders above before submitting.)
+(Team: replace all four placeholders above before submitting — one line
+per member, no placeholder may remain.)
 
 ## Acknowledgements and AI tooling disclosure
 
