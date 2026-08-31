@@ -348,3 +348,36 @@ instrument repair in this campaign is the agent's, committed by its own
 sessions with agent-prefixed messages (ad3f95e, e070d48, 76f7f48). The
 operator's contributions were the pre-launch driver fix and this audit
 section, written after convergence.
+
+## 13. The KuaiRand-1K bonus attempt (1 Sep, final night), audited
+
+Time-boxed to the final night with a pre-declared kill line (07:00) and a
+pre-committed reporting rule: the result would be reported whatever it
+said, framed as an untuned transfer, or its absence disclosed if the box
+expired. It completed at 00:15 in a sandboxed clone; the repository
+received nothing until the owner approved this addition.
+
+What ran: the frozen recipe — features (including tab_n), objective,
+model class, hyperparameters, committee construction, split dates, label,
+metric — transferred to KuaiRand-1K with zero re-tuning, against the
+kit's baseline recipe reproduced on the same data (3 seeds). Result:
+baseline 0.6293, ours 0.6931 test primary, +0.0637; full output at
+logs/bonus_1k.out.
+
+Engineering honesty: two adaptations were required for the 8x larger
+data, both in the script header — columnar feature construction
+(identical feature definitions, one chronological pass; verified against
+the Pure implementations' definitions line by line) and sparse Adam with
+frequency-capped vocabularies (dense updates are infeasible at a
+4.4M-video table; caps applied identically to both arms). One crash
+occurred and is visible in the working history: the kit evaluator's
+integer arithmetic overflows on numpy int8 labels; fixed by passing
+python ints, the kit file itself untouched. Selection was
+validation-only in both arms; per-seed test numbers are recorded, as
+everywhere in this project, and selected on nowhere.
+
+Scope: this is a post-freeze impact measurement outside the campaign
+harness, like sections 7-8's analyses. It banks nothing, changes no
+checkpoint, and the designated Pure submission (0.6143) is unaffected.
+KuaiRand-27K was not attempted — the 322M-row log does not fit this
+project's laptop-CPU constraint honestly.

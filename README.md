@@ -23,6 +23,7 @@ all from `code/`, in this order:
 | `python3 verify_claims.py` | Kit integrity vs the shipped official archive, split sizes, oracle 0.8645, seed noise (~1 min) | every check prints IDENTICAL / matching constants |
 | `python3 replay_verdicts.py` | The selection trail, re-derived from validation alone (~1 s) | `matches the shipped checkpoint: YES` |
 | `python3 staleness_ablation.py` | The serving-assumption sensitivity, measured on the pre-promotion champion (~6 min) | daily-batch regime at `+0.0137` |
+| `python3 bonus_1k.py` (optional; needs the 1.1GB KuaiRand-1K download) | The bonus-benchmark transfer, end to end (~30 min) | `delta vs our 1K baseline: +0.0637` |
 
 Full retraining from raw data: `python3 final_model.py` (~5 min, ends at
 the same 0.6143).
@@ -88,6 +89,17 @@ The three discoveries that carried the score:
   pure surface familiarity — and the revision is in the belief state and
   the audit. The promotion is unaffected: it was earned on validation,
   not on the mechanism story.
+
+Bonus benchmark, run on the final night: the frozen recipe transferred
+to **KuaiRand-1K with zero re-tuning scores +0.0637 over the kit
+baseline reproduced there** (0.6931 vs 0.6293 test primary; committee
+GAUC 0.7017 / nDCG@5 0.6844) — over three times the Pure margin. The
+reason is the central thesis at scale: 1K users average ~11,700 logged
+impressions against Pure's ~53, so the causal behavioral-state features
+have far more signal to carry, and the advantage grows with history
+depth. One self-contained script (`code/bonus_1k.py`), full output in
+`logs/bonus_1k.out`, adaptations disclosed in its header,
+selection validation-only. KuaiRand-27K was not attempted.
 
 Mechanism, proven rather than asserted. Our central causal claim was
 that these features work because of when things happened, not who the user

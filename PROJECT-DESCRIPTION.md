@@ -45,6 +45,14 @@ iterations, 49 minutes, converged by the official rule) in which the agent
 refuted its own top two hypotheses, held the champion, and repaired a
 measurable bias in its own hypothesis-ranking instrument.
 
+On the optional bonus benchmark, the frozen recipe transferred to
+KuaiRand-1K with zero re-tuning scores **+0.0637 over the kit baseline
+reproduced there** (test primary 0.6931 vs 0.6293) — over three times
+the Pure margin, because 1K's users carry ~220x deeper histories and the
+causal behavioral-state features scale with history depth. One
+self-contained script reproduces it (`code/bonus_1k.py`); KuaiRand-27K
+was not attempted.
+
 The three discoveries that carried the score (all found and implemented by
 the agent; the second family's exploration was human-permitted and
 agent-executed, as the interventions summary records):

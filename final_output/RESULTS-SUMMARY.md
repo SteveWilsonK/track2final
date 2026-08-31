@@ -43,7 +43,43 @@ arithmetic ourselves (27.1 percent of test users have no positive label,
 9.2 percent are all positive) before reading the organizers' numbers, and
 they match exactly.
 
-Bonus benchmarks (KuaiRand-1k, KuaiRand-27k): not attempted.
+## Bonus benchmark: KuaiRand-1K (added 1 Sep, final night)
+
+The frozen recipe transferred to KuaiRand-1K with ZERO re-tuning — same
+label, split dates, metric, features (including tab_n), objective, model
+class, hyperparameters, and committee construction. Baseline arm: the
+kit's pointwise FM recipe reproduced on 1K (3 seeds: 0.6338 / 0.6300 /
+0.6243). Everything runs from one self-contained script
+(`code/bonus_1k.py`); the full run output ships at `logs/bonus_1k.out`.
+
+| KuaiRand-1K (11.7M rows, 1,000 users) | valid | test primary |
+|---|---|---|
+| Kit baseline recipe, reproduced (3-seed mean) | — | 0.6293 |
+| Ours, untuned transfer (5-seed committee) | 0.6868 | **0.6931** |
+| Delta | | **+0.0637** |
+
+Committee test components: GAUC 0.7017, nDCG@5 0.6844. Singles
+0.6874–0.6920. Selection was validation-only throughout (early stopping
+and committee construction never see test); test was evaluated once per
+arm at the end.
+
+The delta is over three times the Pure margin (+0.0197), and the reason
+is the project's central thesis working at scale: 1K users average about
+11,700 logged impressions each against Pure's 53, so the causal
+behavioral-state features have far more signal to carry. The advantage
+grows with history depth.
+
+Two engineering adaptations were required for the 8x larger data and are
+disclosed in the script header: columnar feature construction (identical
+definitions, one chronological pass) and sparse Adam updates with
+frequency-capped id vocabularies (the kit's dense update is infeasible at
+1K's 4.4M-video vocabulary; ids below 2 train impressions share the UNK
+slot, as the kit already does for unseen ids). This analysis ran outside
+the campaign harness, like the other post-freeze measurements; it is an
+impact measurement, not a selection event, and the designated Pure
+submission is unaffected.
+
+KuaiRand-27K: not attempted.
 
 ## Resource usage
 
