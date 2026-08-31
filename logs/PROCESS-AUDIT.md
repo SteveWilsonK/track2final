@@ -294,7 +294,7 @@ R37): the identical count computed over surface labels scrambled within
 each user and split, preserving the chronological counting structure and
 every per-user marginal, destroying only which surface each count tracks.
 
-Result: valid 0.61849 — 56 percent of the R33b gain survives scrambling
+Result: valid 0.61849 — roughly half of the R33b gain survives scrambling (56 percent as measured, a single 3-seed run with both components near the noise floor)
 (the pre-committed collapse criterion was under 50 percent surviving). The
 pure surface-familiarity story is therefore refuted as the sole mechanism:
 roughly half the effect needs the true surface, roughly half comes from

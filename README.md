@@ -6,8 +6,10 @@ Final result on KuaiRand-Pure: test primary **0.6143** (GAUC 0.6857, nDCG@5
 0.5429). The official baseline is 0.5946, so our delta is **+0.0197**
 (GAUC +0.0247, nDCG@5 +0.0147). The final +0.0027 of that margin is the
 promoted discovery of the autonomous research loop itself: tab_n, a
-per-surface familiarity feature derived from the champion's own residuals
-(campaign 5 below; the pre-promotion champion scored 0.6116).
+partitioned-familiarity feature (a per-surface impression count; per our
+own R37 control, roughly half its gain needs the true surface and half
+comes from the counting structure) derived from the champion's own
+residuals (campaign 5 below; the pre-promotion champion scored 0.6116).
 
 ## Verify this submission in five minutes
 
@@ -78,10 +80,11 @@ The three discoveries that carried the score:
   test 0.6143 over 0.6116. The one feature in the submission a human
   did not think of. A sharper control run after promotion, at review
   request (R37: the identical count computed over surfaces scrambled
-  within each user), then split the mechanism story: 56 percent of the
-  gain survives scrambling, so roughly half the effect needs the true
-  surface and roughly half comes from the partitioned counting structure
-  itself. We revised the claim accordingly — partitioned familiarity, not
+  within each user), then split the mechanism story: roughly half the
+  gain survives scrambling (a single 3-seed measurement with both halves
+  near the noise floor, so "roughly half" is the supported precision) —
+  part of the effect needs the true surface, part comes from the
+  partitioned counting structure itself. We revised the claim accordingly — partitioned familiarity, not
   pure surface familiarity — and the revision is in the belief state and
   the audit. The promotion is unaffected: it was earned on validation,
   not on the mechanism story.

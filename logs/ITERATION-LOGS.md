@@ -296,7 +296,8 @@ three genuine convergence-window experiments.
 
 Post-promotion mechanism revision (R37, review-requested): a
 discriminating control — the identical count over surface labels
-scrambled within each user — found 56 percent of tab_n's gain survives,
+scrambled within each user — found roughly half of tab_n's gain survives
+(56 percent as measured, one 3-seed run, both halves near the noise floor),
 so the mechanism was revised from pure surface familiarity to partitioned
 familiarity (about half surface-specific, half counting structure). The
 promotion is unaffected (validation-based); see PROCESS-AUDIT section 11.
@@ -355,7 +356,7 @@ loop's second recorded refusal to bank under the rule and its first
 outright refutation of an analyzer-generated hypothesis — the negative and
 its post-mortem are the iteration's product.
 
-Updated tally: **50 runs across six campaigns, ~86 configurations.**
+Running tally as of this iteration (point-in-time; the Tally section at the top carries the final 53/~89): **50 runs, ~86 configurations.**
 
 ## Campaign 6, iterations 2–3 (31 Aug, late): a second refutation, and the queue's ranking rebuilt
 
