@@ -64,6 +64,7 @@ They are not the scored submission and should not be averaged with it.
 | Interactive research (29 runs; culminating run 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | **0.6116, the designated final submission** |
 | Verification run (3 iterations; non-regression check, banked nothing) | frozen research state | 0 | 0.6116 survives re-challenge |
 | Clean-room run (6 iterations) | bare baseline, empty memory | 0 | 0.59744 (+0.0028 over baseline; supplementary demonstration) |
+| v2-loop iteration (31 Aug, 1 iteration; see ITERATION-LOGS addendum) | frozen research state + belief state | 0 | full loop demonstrated: residual analysis -> mechanism hypothesis -> experiment (+0.0024 over control) -> placebo falsification -> sub-margin decline; banked nothing, 0.6116 unchanged |
 
 The clean-room agent also refused two configurations whose test scores
 looked better but whose validation did not justify them (its iterations 4

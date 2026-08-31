@@ -9,6 +9,16 @@
    "control": null,
    "expected_value": 0.07846,
    "cost_estimate_s": null
+  },
+  {
+   "id": "residual_tab_1",
+   "claim": "slice tab=1 scores 0.5949 vs overall 0.6191 across 20119 users; a feature or prior targeted at this slice should close part of the gap; oracle headroom on the overall metric 0.2128 (31% of the slice's users are all-negative inside it, so the slice-restricted score understates the model)",
+   "mechanism": "none",
+   "status": "proposed",
+   "evidence": [],
+   "control": null,
+   "expected_value": 0.2128,
+   "cost_estimate_s": null
   }
  ]
 }

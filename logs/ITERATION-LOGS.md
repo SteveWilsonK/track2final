@@ -184,3 +184,51 @@ All campaigns, side by side — none resumed after converging:
 
 Scored checkpoint = validation-best at convergence (R24b; the R29
 validation tie resolved to the incumbent), evaluated once on the test split.
+
+## Addendum (31 Aug): fourth campaign — one iteration of the v2 research loop
+
+After the research-extension work (mechanism controls, belief state,
+residual analyzer, priority queue; see `PROCESS-AUDIT.md` section 8), the
+driver was relaunched at 09:55 with the v2 iteration prompt. One iteration
+ran, unattended, and executed the full loop (all steps verifiable in
+`logs/LOG.jsonl` runs R33-ctrl/R33a/R33b/R33-placebo, `code/tab_surface.py`,
+`agent/residual_analysis.py`, `agent/belief_state.json`):
+
+1. **Observed** the frozen champion's residuals and found its worst
+   validation slice: tab=0 (slice-restricted primary 0.30436, 5,579 users).
+2. **Repaired its own instrument.** The session noticed the analyzer's
+   expected-value measure was inflated by metric degeneracy (92% of tab=0's
+   users have no positive label inside the slice, so the slice score is
+   floor-dominated) and rewrote `residual_analysis.py` to rank slices by
+   oracle headroom on the overall metric instead — a methodological fix the
+   loop made to itself, with a self-test.
+3. **Hypothesized a mechanism** (per-surface causal history: the shipped
+   prev1/hist10 are stream-wide and 73% tab=1, so on tab=0 rows they report
+   behavior from a surface with a 10x higher positive rate) and wrote a
+   targeted experiment, `code/tab_surface.py`.
+4. **Tested**: R33-ctrl (fresh RICH control) valid 0.61715; R33a (recency +
+   familiarity) 0.61806; R33b (tab_n familiarity only) 0.61955 — a +0.0024
+   gain over control.
+5. **Falsified before banking**: ran the time-shuffle placebo on tab_n
+   unprompted. Shuffled valid 0.61612, below the control — the gain
+   collapses completely, so the signal is real per-surface history, not
+   added capacity.
+6. **Declined to bank.** R33b sits +0.00049 above the banked best
+   (0.61906), below the 0.001 promotion margin. Verdict logged as
+   SIGNIFICANT_BUT_NOT_BEST; the frozen 0.6116 checkpoint is unchanged.
+
+**Infrastructure fault, stated plainly:** the agent session completed and
+exited cleanly at 10:13, but the driver wrapper process died without
+writing its iteration-end event, so `agent/driver_log.jsonl` for this
+campaign records only driver_start and iteration_start. The run is
+therefore reported as 1 completed iteration, terminated by a wrapper
+fault rather than by the convergence rule. Zero human interventions
+occurred during the iteration; all six loop steps above are reconstructed
+from the harness log and committed artifacts, not from the driver log.
+This is the project's third error-recovery event, again with zero data
+loss.
+
+Updated tally: 42 runs across four campaigns (29 interactive · 3
+verification · 6 clean-room · 4 in the v2-loop iteration) · 3 banked
+structural wins · 5 test-peek refusals · 1 sub-margin decline by the
+autonomous loop · final unchanged: **0.6116**.

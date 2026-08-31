@@ -204,3 +204,24 @@ ordering from logged wall times; the iteration prompt (v2) wires them into
 the loop, and a further unattended campaign was launched under it. Every
 module ships with a passing self-test. Two float-serialization crashes
 during the night were fixed and are visible in the working history.
+
+## 9. The v2-loop campaign (31 Aug morning), audited
+
+The campaign launched under the v2 prompt ran one full unattended
+iteration and then halted on an infrastructure fault: the agent session
+exited cleanly at 10:13 but the driver wrapper died without logging its
+iteration-end event, so `agent/driver_log.jsonl` records only the start
+events. Nothing about the iteration itself is reconstructed from memory;
+every step is in committed artifacts. In order: the residual analyzer ran
+and surfaced tab=0; the session identified a bias in the analyzer's own
+expected-value measure (slice-restricted scoring is degenerate when 92
+percent of a slice's users carry no positive label inside it) and rewrote
+the analyzer to rank by oracle headroom, with a self-test; it wrote
+`code/tab_surface.py` with an explicit mechanism claim; it ran a control
+(R33-ctrl, valid 0.61715), two arms (R33a 0.61806, R33b 0.61955), and an
+unprompted time-shuffle placebo (0.61612, below control, gain fully
+collapsed); and it declined to bank R33b because +0.00049 over the banked
+0.61906 is under the 0.001 promotion margin. The frozen submission is
+unchanged. Honest accounting: this campaign demonstrates one iteration of
+the loop, not a converged run; it is labeled that way everywhere it is
+mentioned.
