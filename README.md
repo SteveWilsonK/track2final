@@ -349,4 +349,4 @@ Tristan worked on transferring the model to the larger KuaiRand-1K dataset and o
 
 ## Repository
 
-https://github.com/SteveWilsonK/track2final
+https://github.com/trisbk/Bridges-Techjam-Submission/tree/main
