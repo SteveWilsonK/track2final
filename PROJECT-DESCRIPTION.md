@@ -52,4 +52,4 @@ No manually labeled dataset or pretrained recommendation model was added.
 
 ## Public repository
 
-https://github.com/SteveWilsonK/track2final
+https://github.com/trisbk/Bridges-Techjam-Submission/tree/main
