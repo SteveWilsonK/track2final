@@ -77,8 +77,10 @@ Timing is the mechanism; identity fingerprinting contributes nothing.
 
 A second finding: the exposure-bias frontier. Re-weighting the listwise
 objective's negatives by inverse training-window exposure and scoring each
-variant on both test sets shows that **one point of biased-log score buys
-about two points of unbiased-exposure score** (`code/debias_frontier.py`).
+variant on both test sets shows a **steeply diminishing exchange rate: the
+first debiasing step (lambda 0 to 0.5) trades one point of biased-log score
+for about two points of unbiased-exposure score, but the next step trades
+at only about 0.3:1** (`code/debias_frontier.py`).
 Much of any model's standard-log performance on this dataset is exposure
 fitting, and the measured trade-off curve is the price of correcting it.
 The submission stays at lambda 0 because the competition scores the logged

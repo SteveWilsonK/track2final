@@ -78,6 +78,8 @@ serving assumption explicitly.
   result, and is now annotated as such.
 - Run and configuration counts are reconciled everywhere as: 29 interactive
   runs + 3 verification + 6 clean-room = 38 runs, about 75 configurations.
+  (Superseded 31 Aug by the fourth campaign: the total is now 42 runs,
+  about 79 configurations; see section 9.)
 - "The order the agent found them" (project description) is rephrased: the
   agent found both discoveries; the second family's exploration was
   human-permitted (intervention 2 in INTERVENTIONS.md) and agent-executed.
@@ -115,7 +117,8 @@ The designated final submission is the validation-best checkpoint at
 convergence, 0.6116 on the local test split, +0.0170 over the official
 baseline, reproducible from raw data in one command, with a research trail
 of 38 runs in which negatives outnumber wins and five test-favorable
-switches were refused on validation grounds.
+switches were refused on validation grounds. (As of 31 Aug: 42 runs and a
+sixth refusal, the unattended sub-margin decline of R33b; see section 9.)
 
 ## 6. Second review round (30 Aug, evening)
 
@@ -133,7 +136,9 @@ or tallies that a grep falsifies. All are now fixed:
   of an audit document misstating its own corrections is not lost on us;
   this appendix was written after re-checking every claim below with grep.
 - Tallies reconciled: ITERATION-LOGS.md's closing tally now reads 38 runs
-  across three campaigns, ~75 configurations, 5 refusals. RESULTS.md's
+  across three campaigns, ~75 configurations, 5 refusals (figures as of 30
+  Aug; the 31 Aug campaign brings these to 42 runs, four campaigns, 6
+  refusals — see section 9). RESULTS.md's
   freeze-day tally is labeled as point-in-time with the final figures
   alongside.
 - The promotion rule is now precise in code and prompt: a challenger must
@@ -193,9 +198,11 @@ untouched throughout. (a) A falsification engine (`code/controls.py`) that
 synthesizes placebo tests from a claim's mechanism tag; applied to the
 headline claim it shows 95 percent of the sequence gain is timing and the
 time-shuffled features equal random noise (`code/mechanism_test.py`).
-(b) The exposure-bias frontier (`code/debias_frontier.py`): about a 2:1
-exchange rate between unbiased-exposure gains and biased-log losses under
-inverse-exposure negative weighting; submission remains lambda 0.
+(b) The exposure-bias frontier (`code/debias_frontier.py`): a steeply
+diminishing exchange rate between unbiased-exposure gains and biased-log
+losses under inverse-exposure negative weighting — about 2:1 on the first
+debiasing step (lambda 0 to 0.5), falling to about 0.3:1 on the second;
+submission remains lambda 0.
 (c) Research machinery in `agent/`: structured belief state with
 control-gated promotion enforced as code, residual-driven hypothesis
 generation (its first live run surfaced tab=0, validation primary 0.304 vs
@@ -224,4 +231,11 @@ collapsed); and it declined to bank R33b because +0.00049 over the banked
 0.61906 is under the 0.001 promotion margin. The frozen submission is
 unchanged. Honest accounting: this campaign demonstrates one iteration of
 the loop, not a converged run; it is labeled that way everywhere it is
-mentioned.
+mentioned. A second gap, also disclosed: the session recorded its evidence
+and control in the harness log but never wrote them back into the belief
+state via attach_evidence()/attach_control(), so belief_state.json still
+shows both hypotheses as proposed with the analyzer's pre-repair EV, and
+the code-enforced promote() gate — exercised in the module's self-test —
+was not exercised live; the decline came from the harness promotion
+margin. The file is preserved exactly as the agent left it rather than
+groomed after the fact.

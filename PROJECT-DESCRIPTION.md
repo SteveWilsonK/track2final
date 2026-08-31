@@ -30,8 +30,9 @@ isolates the value of the human decisions.
 Result: test primary **0.6116** (GAUC 0.6825, nDCG@5 0.5408), which is
 **+0.0170 over the official baseline** (GAUC +0.0215, nDCG@5 +0.0126, and
 the score under the official formula is the mean of those deltas). The
-record behind it: 38 logged runs (29 interactive research, 3 verification,
-6 clean-room) covering about 75 configurations, including a clean-room run
+record behind it: 42 logged runs (29 interactive research, 3 verification,
+6 clean-room, 4 in a final unattended loop iteration) covering about 79
+configurations, including a clean-room run
 where the agent, restarted with zero prior knowledge and zero human input,
 independently reached 0.59744 (+0.0028 over baseline) in 6 iterations and
 1 hour 48 minutes.
@@ -77,10 +78,11 @@ Three properties of the process matter as much as the score:
   control on record. Hypotheses themselves come from measured residuals
   (worst validation slices ranked by expected value), and experiment order
   comes from expected value per second of compute.
-- A measured discovery about the dataset: the exposure-bias frontier. One
-  point of biased-log score buys about two points of unbiased-exposure
-  score when the training objective is debiased by inverse exposure
-  weighting. The submission stays undebiased because the competition
+- A measured discovery about the dataset: the exposure-bias frontier. The
+  exchange rate is steeply diminishing: the first debiasing step (lambda 0
+  to 0.5) trades one point of biased-log score for about two points of
+  unbiased-exposure score, and the next step trades at only about 0.3:1,
+  under inverse-exposure weighting. The submission stays undebiased because the competition
   scores the logged-exposure test; the curve quantifies what that choice
   costs in true-preference terms.
 - Enforced discipline. Every experiment runs through a harness that requires

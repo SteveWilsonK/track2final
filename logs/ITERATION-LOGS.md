@@ -124,12 +124,15 @@ in THIS repo; GAUC/nDCG components in LOG.jsonl):
 
 ## Tally
 
-38 runs across three campaigns (29 interactive · 3 verification · 6
-clean-room) · ~75 configurations · 3 banked structural wins (objective,
-sequence features, committee) · 5 documented test-peek refusals ·
-2 diagnosed leakage traps · 1 legality retirement (random-exposure log) ·
-2 error-recovery events, both with zero data loss · final: **0.6116
-(+0.0170 vs published), twice-converged and independently reproduced.**
+42 runs across four campaigns (29 interactive · 3 verification · 6
+clean-room · 4 in the 31 Aug v2-loop iteration, see the addendum below) ·
+~79 configurations · 3 banked structural wins (objective,
+sequence features, committee) · 6 refusals of a test-favorable result on
+validation grounds (5 test-peek refusals plus the unattended sub-margin
+decline of R33b) · 2 diagnosed leakage traps · 1 legality retirement
+(random-exposure log) · 3 error-recovery events, all with zero data loss ·
+final: **0.6116 (+0.0170 vs published), twice-converged and independently
+reproduced.**
 
 ## Addendum (30 Aug): clean-room autonomous run + spec compliance
 
@@ -228,7 +231,13 @@ from the harness log and committed artifacts, not from the driver log.
 This is the project's third error-recovery event, again with zero data
 loss.
 
-Updated tally: 42 runs across four campaigns (29 interactive · 3
-verification · 6 clean-room · 4 in the v2-loop iteration) · 3 banked
-structural wins · 5 test-peek refusals · 1 sub-margin decline by the
-autonomous loop · final unchanged: **0.6116**.
+This campaign is included in the Tally section above (42 runs across four
+campaigns; the R33b decline is counted there as the sixth refusal of a
+test-favorable result). One bookkeeping gap, disclosed: the session never
+called `attach_evidence()`/`attach_control()` on the belief state, so
+`agent/belief_state.json` still shows both hypotheses as `proposed` with
+the pre-repair EV — the iteration's actual evidence, control, and decline
+live in `logs/LOG.jsonl` (R33-ctrl/a/b/placebo), and the code-enforced
+`promote()` gate, while self-tested, was not exercised in this live run.
+The belief state file is left exactly as the agent wrote it rather than
+groomed after the fact. Final unchanged: **0.6116**.
