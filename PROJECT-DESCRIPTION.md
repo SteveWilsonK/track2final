@@ -20,7 +20,7 @@ One final feature, `tab_n`, came from the autonomous research loop. The agent fo
 
 ## Development approach and AI assistance
 
-The project was developed by the four-person team. Claude Code was used as an assisting tool during parts of development and experimentation, similar to an AI coding and research assistant. It helped with tasks such as exploring hypotheses, suggesting or reviewing code, supporting experiment runs, and organizing research notes. The team remained responsible for the system design, implementation decisions, validation rules, experiment interpretation, debugging, and final submission. The repository should therefore be read as team-developed work completed with AI assistance, not as a codebase produced entirely by Claude.
+The project was developed by the four-person team. Claude Code was used as an assisting tool during parts of development and experimentation, similar to an AI coding and research assistant. It helped with tasks such as exploring hypotheses, suggesting or reviewing code, supporting experiment runs, and organizing research notes. The team remained responsible for the system design, implementation decisions, validation rules, experiment interpretation, debugging, and final submission.
 
 ## Development tools used
 
