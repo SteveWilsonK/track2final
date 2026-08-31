@@ -18,20 +18,16 @@ A separate control experiment tested the explanation more directly. We kept the 
 
 One final feature, `tab_n`, came from the autonomous research loop. The agent found a weak validation slice and proposed measuring how much prior experience a user had with the current recommendation area. The feature improved the final model. A later control showed that the agent's first explanation was only partly correct, so the interpretation was narrowed while the validated feature was retained.
 
-## Development approach and AI assistance
-
-The project was developed by the four-person team. Claude Code was used as an assisting tool during parts of development and experimentation, similar to an AI coding and research assistant. It helped with tasks such as exploring hypotheses, suggesting or reviewing code, supporting experiment runs, and organizing research notes. The team remained responsible for the system design, implementation decisions, validation rules, experiment interpretation, debugging, and final submission.
-
 ## Development tools used
 
-- **Claude Code (Anthropic):** used as an AI-assisted development and research tool for parts of the research workflow, including brainstorming hypotheses, drafting or reviewing code, supporting experiment execution, and helping organize research notes. All project code, experiments, model decisions, and submitted results remained the responsibility of the team.
+- **Claude Code (Anthropic):** used as the reasoning component in the autonomous research workflow. The agent works with measured model errors and structured hypotheses, then interacts with the controlled experiment pipeline under predefined validation and falsification rules.
 - **Git and GitHub:** used for version control, the public code repository, and the research record.
 - **macOS Terminal and zsh:** used to run training, evaluation, and unattended research sessions.
 - **Python 3.12 / CPython:** used for model training, evaluation, experiment scripts, and agent utilities.
 
 ## APIs used
 
-- **Anthropic Claude API through Claude Code:** used to assist parts of the research process, such as hypothesis exploration, code suggestions, and experiment support. It was not the sole author of the codebase or the project.
+- **Anthropic Claude API through Claude Code:** provides the language-model reasoning used by the autonomous research agent.
 - Model training and evaluation run locally and do not require an external API.
 
 ## Libraries and frameworks used
@@ -52,4 +48,4 @@ No manually labeled dataset or pretrained recommendation model was added.
 
 ## Public repository
 
-https://github.com/trisbk/Bridges-Techjam-Submission/tree/main
+https://github.com/trisbk/Bridges-Techjam-Submission
