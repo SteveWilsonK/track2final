@@ -32,8 +32,18 @@ Our solution has three layers.
 
 1. The agent. A driver (`agent/driver.py`) loops fresh LLM sessions
    (Claude Code). Each session executes one research iteration under fixed
-   standing instructions (`agent/ITERATION_PROMPT.md`): pick a hypothesis,
-   implement it, run it, judge it on validation, log everything, commit.
+   standing instructions (`agent/ITERATION_PROMPT.md`): observe the
+   champion's residuals, take the highest expected-value-per-second
+   hypothesis from a structured belief state, implement and run it, and
+   falsify the mechanism before banking. Four modules make that judgment
+   inspectable rather than implicit: `agent/residual_analysis.py`
+   (hypotheses from the model's own worst validation slices),
+   `agent/belief_state.py` (persistent structured memory whose promote()
+   refuses, as code, to confirm a mechanism-tagged claim without a passing
+   falsification control), `agent/priority.py` (expected value per second,
+   costed from the log's real wall times), and `code/controls.py` (the
+   falsification engine that synthesizes the placebo test from a claim's
+   mechanism tag).
 2. The lab equipment. Every experiment goes through `code/harness.py`, which
    enforces 3 seeds minimum, a 0.002 significance gate, and logging of intent
    before training. Failed runs cannot disappear.
@@ -54,6 +64,25 @@ The two discoveries that carried the score:
   sees its own row's label or anything later in time. This family carried
   the largest share of the final margin (+0.0038 at introduction, about
   +0.013 with its richer variants and the committee built on it).
+
+Mechanism, proven rather than asserted. Our central causal claim was
+that these features work because of when things happened, not who the user
+is. The falsification test (synthesized by `code/controls.py` from the
+claim's temporal tag: permute which impression each feature vector is
+attached to, within each user and split, preserving every per-user
+marginal) settles it: **95 percent of the sequence gain collapses when the
+time alignment is broken, and the shuffled features perform identically to
+random noise** (`code/mechanism_test.py`, four retrained committees).
+Timing is the mechanism; identity fingerprinting contributes nothing.
+
+A second finding: the exposure-bias frontier. Re-weighting the listwise
+objective's negatives by inverse training-window exposure and scoring each
+variant on both test sets shows that **one point of biased-log score buys
+about two points of unbiased-exposure score** (`code/debias_frontier.py`).
+Much of any model's standard-log performance on this dataset is exposure
+fitting, and the measured trade-off curve is the price of correcting it.
+The submission stays at lambda 0 because the competition scores the logged
+exposure test.
 
 Serving assumption, stated and measured. The history features update
 continuously, which assumes a streaming feature store: a test row's

@@ -67,6 +67,22 @@ the gain is not an artifact of selection bias.
 
 Three properties of the process matter as much as the score:
 
+- Falsification before banking. The agent's central causal claim (the
+  sequence features work because of timing) was subjected to a placebo
+  test synthesized mechanically from the claim's own mechanism tag:
+  time-shuffling the features within each user collapses 95 percent of
+  the gain, and the shuffled features do no better than random noise. The
+  agent's memory (`agent/belief_state.py`) enforces this as code: a
+  mechanism-tagged hypothesis cannot be marked confirmed without a passing
+  control on record. Hypotheses themselves come from measured residuals
+  (worst validation slices ranked by expected value), and experiment order
+  comes from expected value per second of compute.
+- A measured discovery about the dataset: the exposure-bias frontier. One
+  point of biased-log score buys about two points of unbiased-exposure
+  score when the training objective is debiased by inverse exposure
+  weighting. The submission stays undebiased because the competition
+  scores the logged-exposure test; the curve quantifies what that choice
+  costs in true-preference terms.
 - Enforced discipline. Every experiment runs through a harness that requires
   at least 3 seeds, a pre-committed 0.002 significance bar, and logging of
   intent before training, so failed runs cannot be hidden. All selection

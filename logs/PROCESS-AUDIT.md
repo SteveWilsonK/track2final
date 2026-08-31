@@ -185,3 +185,22 @@ committee-vs-committee, +12.5 percent of captured headroom, comparable to
 the standard log rather than larger). We report the stricter numbers as
 primary. Scripts: code/daily_retrain.py, code/unbiased_eval.py. The
 designated submission is untouched by both.
+
+## 8. Pre-submission research extension (31 Aug, overnight)
+
+Executed in response to the Innovation critique, with the frozen submission
+untouched throughout. (a) A falsification engine (`code/controls.py`) that
+synthesizes placebo tests from a claim's mechanism tag; applied to the
+headline claim it shows 95 percent of the sequence gain is timing and the
+time-shuffled features equal random noise (`code/mechanism_test.py`).
+(b) The exposure-bias frontier (`code/debias_frontier.py`): about a 2:1
+exchange rate between unbiased-exposure gains and biased-log losses under
+inverse-exposure negative weighting; submission remains lambda 0.
+(c) Research machinery in `agent/`: structured belief state with
+control-gated promotion enforced as code, residual-driven hypothesis
+generation (its first live run surfaced tab=0, validation primary 0.304 vs
+0.619 overall, as the model's largest weakness), and cost-aware experiment
+ordering from logged wall times; the iteration prompt (v2) wires them into
+the loop, and a further unattended campaign was launched under it. Every
+module ships with a passing self-test. Two float-serialization crashes
+during the night were fixed and are visible in the working history.
