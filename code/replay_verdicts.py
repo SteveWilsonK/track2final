@@ -11,7 +11,8 @@ label per record. The original log is never modified.
 
 Run from code/:  python3 replay_verdicts.py
 Expected ending: the champion is the shipped checkpoint
-(valid 0.61906 / test 0.61164).
+(valid 0.62059 / test 0.61429 — R33c, campaign 5; before the 31 Aug
+promotion this was R24b at 0.61906 / 0.61164).
 """
 import json, os
 
@@ -64,5 +65,5 @@ for name, vm, tm in trajectory:
     print(f"  valid {vm:.5f} | test {tm if tm is None else round(tm,5)} | {name}")
 final = trajectory[-1]
 print(f"\nfinal champion: {final[0]}  (valid {final[1]:.5f}, test {final[2]:.5f})")
-ok = abs(final[1] - 0.61906) < 1e-6
+ok = abs(final[1] - 0.62059) < 1e-6
 print("matches the shipped checkpoint: " + ("YES" if ok else "NO — investigate"))

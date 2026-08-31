@@ -2,9 +2,12 @@
 
 TikTok TechJam 2026, Track 2.
 
-Final result on KuaiRand-Pure: test primary **0.6116** (GAUC 0.6825, nDCG@5
-0.5408). The official baseline is 0.5946, so our delta is **+0.0170**
-(GAUC +0.0215, nDCG@5 +0.0126).
+Final result on KuaiRand-Pure: test primary **0.6143** (GAUC 0.6857, nDCG@5
+0.5429). The official baseline is 0.5946, so our delta is **+0.0197**
+(GAUC +0.0247, nDCG@5 +0.0147). The final +0.0027 of that margin is the
+promoted discovery of the autonomous research loop itself: tab_n, a
+per-surface familiarity feature derived from the champion's own residuals
+(campaign 5 below; the pre-promotion champion scored 0.6116).
 
 ## Verify this submission in five minutes
 
@@ -14,13 +17,13 @@ all from `code/`, in this order:
 
 | Command | What it proves | Expected ending |
 |---|---|---|
-| `python3 score_frozen.py` | The headline score, from shipped weights, no training (~2 min) | `test ... primary 0.6116` |
+| `python3 score_frozen.py` | The headline score, from shipped weights, no training (~2 min) | `test ... primary 0.6143` |
 | `python3 verify_claims.py` | Kit integrity vs the shipped official archive, split sizes, oracle 0.8645, seed noise (~1 min) | every check prints IDENTICAL / matching constants |
 | `python3 replay_verdicts.py` | The selection trail, re-derived from validation alone (~1 s) | `matches the shipped checkpoint: YES` |
-| `python3 staleness_ablation.py` | The serving-assumption sensitivity (~6 min) | daily-batch regime at `+0.0137` |
+| `python3 staleness_ablation.py` | The serving-assumption sensitivity, measured on the pre-promotion champion (~6 min) | daily-batch regime at `+0.0137` |
 
 Full retraining from raw data: `python3 final_model.py` (~5 min, ends at
-the same 0.6116).
+the same 0.6143).
 
 ## Project overview
 
@@ -49,10 +52,10 @@ Our solution has three layers.
    before training. Failed runs cannot disappear.
 3. The model the agent produced. A five seed committee of Factorization
    Machines (k=16), trained with a listwise objective on causal sequence
-   features. Simple on purpose. Full recipe in
-   `final_output/frozen_model/config.json`.
+   features plus the loop's own promoted discovery (tab_n). Simple on
+   purpose. Full recipe in `final_output/frozen_model/config.json`.
 
-The two discoveries that carried the score:
+The three discoveries that carried the score:
 
 - Train on the question being graded. The baseline predicts "will this video
   be watched" but the metric grades ranking within a user. Switching to a
@@ -64,6 +67,16 @@ The two discoveries that carried the score:
   sees its own row's label or anything later in time. This family carried
   the largest share of the final margin (+0.0038 at introduction, about
   +0.013 with its richer variants and the committee built on it).
+- Surface familiarity, found by the loop itself. The autonomous v2
+  iteration analyzed the champion's residuals, found its worst slice
+  (tab=0), hypothesized that stream-wide history misleads on the minority
+  surface, and proposed tab_n: the user's prior impression count on the
+  row's surface, label-free and log-bucketed. The mechanism passed its
+  time-shuffle placebo (the gain collapses entirely when the count is
+  detached from its impression), and the pre-committed 5-seed committee
+  check promoted it: validation 0.62059 over the incumbent's 0.61906,
+  test 0.6143 over 0.6116. The one feature in the submission a human
+  did not think of.
 
 Mechanism, proven rather than asserted. Our central causal claim was
 that these features work because of when things happened, not who the user
@@ -90,12 +103,14 @@ Serving assumption, stated and measured. The history features update
 continuously, which assumes a streaming feature store: a test row's
 features include the outcomes of the same user's earlier test-window
 impressions (each row still sees only strictly-prior events). We measured
-what the gain looks like under weaker serving assumptions with the shipped
-weights (`code/staleness_ablation.py`):
+what the gain looks like under weaker serving assumptions on the
+pre-promotion champion, the 0.6116 seven-feature recipe
+(`code/staleness_ablation.py`; the promoted model adds tab_n, itself a
+history-derived count, so the same streaming assumption governs it):
 
 | Test-time feature regime | primary | vs baseline |
 |---|---|---|
-| Continuous updates (as submitted) | 0.6116 | +0.0170 |
+| Continuous updates (the pre-promotion champion) | 0.6116 | +0.0170 |
 | Daily batch refresh, shipped weights unmodified | 0.6083 | +0.0137 |
 | Daily batch refresh, committee retrained for the regime (`daily_retrain.py`) | 0.6106 | +0.0160 |
 | Frozen at the test boundary, shipped weights unmodified (train/serve skew) | 0.5943 | −0.0003 |
@@ -124,20 +139,26 @@ system already favored. One scope note: features on these rows use the
 same continuous-update regime as the headline, so this analysis removes
 exposure bias; it does not additionally vary feature freshness.
 
-Three campaigns were run. Together they cover the autonomy spectrum:
+Five campaigns were run. Together they cover the autonomy spectrum:
 
 | Campaign | Start state | Manual interventions | Converged at |
 |---|---|---|---|
-| Interactive research (29 runs; the culminating run is iterations 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | 0.6116, the designated final submission |
+| Interactive research (29 runs; the culminating run is iterations 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | 0.6116, the champion until 31 Aug |
 | Verification run (3 iterations, overnight, unattended; a non-regression check, banked nothing) | frozen research state | 0 | 0.6116 survives re-challenge |
 | Clean-room run (6 iterations, unattended, empty memory) | bare baseline | 0 | 0.59744, its own discovery, +0.0028 over baseline |
+| v2-loop iteration (31 Aug, unattended; ended by a driver fault after one full iteration) | frozen state + belief state | 0 during the iteration | produced the tab_n hypothesis, its passing placebo, and a sub-margin 3-seed decline |
+| Campaign 5, completion run (4 iterations, operator-driven) | banked state | operator-driven by design | **0.6143, the designated final submission** (banked the loop's tab_n at the pre-committed committee check, then 3 sub-epsilon iterations) |
 
-The designated final submission is 0.6116. The other two campaigns are
-supplementary autonomy demonstrations, not the scored result.
+The designated final submission is 0.6143: the interactive campaign's
+recipe plus the autonomous loop's own promoted discovery. The verification,
+clean-room, and v2-loop campaigns are autonomy demonstrations, not the
+scored result.
 
 The clean-room agent also refused to select two configurations whose test
 scores looked better but whose validation did not justify them. It did that
-with no human watching. The project logs five such refusals in total.
+with no human watching. The project logs six validation-grounded refusals
+in total (the sixth, the v2 loop's 3-seed decline of tab_n, was superseded
+when the pre-committed 5-seed committee check cleared the promotion bar).
 
 ## Repository map
 
@@ -173,11 +194,11 @@ cd code
 python3 baseline.py --model fm
 
 # 2. Our final model, about 5 minutes. Retrains all five committee members
-#    from raw data and prints: test primary 0.6116.
+#    from raw data and prints: test primary 0.6143.
 python3 final_model.py
 
 # 3. Or score the shipped weights without retraining, about 2 minutes.
-#    Finds final_output/frozen_model automatically. Prints the same 0.6116.
+#    Finds final_output/frozen_model automatically. Prints the same 0.6143.
 python3 score_frozen.py
 
 # 4. Regenerate and validate the official submission file:

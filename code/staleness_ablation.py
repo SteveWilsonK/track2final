@@ -102,15 +102,18 @@ def _apply(h, x, vid2tag):
 RICH = BASE + SEQ + ['hist30', 'tag_hist', 'gap']
 
 def _frozen_dir():
-    """Locate the frozen weights: ./frozen_model first, then
-    ../final_output/frozen_model (the shipped location)."""
-    for c in ('frozen_model',
-              os.path.join('..', 'final_output', 'frozen_model')):
+    """Locate the R24b-era weights this ablation was measured on. After the
+    31 Aug promotion (R33c, adds tab_n) the shipped frozen_model/ holds the
+    new champion, whose feature dimension differs; this analysis and the
+    numbers documented from it belong to the pre-promotion champion, kept
+    at final_output/frozen_model_r24b/."""
+    for c in (os.path.join('..', 'final_output', 'frozen_model_r24b'),
+              'frozen_model_r24b'):
         if os.path.exists(os.path.join(c, 'fm_seed0.npz')):
             return c
     raise FileNotFoundError(
-        'frozen_model not found; expected ./frozen_model or '
-        '../final_output/frozen_model')
+        'frozen_model_r24b not found; expected '
+        '../final_output/frozen_model_r24b or ./frozen_model_r24b')
 
 
 if __name__ == '__main__':

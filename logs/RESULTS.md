@@ -554,8 +554,9 @@ Recipe: 5-seed FM committee, k=16, lr 1e-3, listwise InfoNCE K=4, rich
 causal sequence features. Weights + predictions saved to `frozen_model/`
 by `final_model.py` (one command, ~5 min, numpy only, full retrain from raw
 data). Tally as of this 29 Aug freeze: 29 runs, ~60 configurations,
-2 documented test-peek refusals at that point (final project tally: 42
-runs, ~79 configurations, 6 refusals — see ITERATION-LOGS.md),
+2 documented test-peek refusals at that point (final project tally: 46
+runs, ~82 configurations, 6 refusals, final checkpoint 0.6143 after the
+31 Aug promotion — see ITERATION-LOGS.md),
 1 legality retirement, every claim 3+ seeds past a pre-committed bar.
 
 Next phase: autonomy driver, unattended agent demonstration, report, video.

@@ -31,6 +31,10 @@ PROMOTION_MARGIN = 0.001   # a challenger must beat the incumbent's validation
                            # by more than noise; ties and sub-noise diffs keep
                            # the incumbent (the documented banking rule)
 RULE_TAG = 'valid-v2'      # stamped on records written under the corrected rule
+BANKED_VALID = 0.62059     # the frozen champion's validation primary (R33c,
+                           # campaign 5; R24b's 0.61906 until 31 Aug). The
+                           # driver reads this for its convergence baseline;
+                           # current_best() uses it as the floor.
 
 
 def _append(rec):
@@ -44,7 +48,8 @@ def current_best():
     the validation of the frozen champion. Legacy records keep their
     original labels as display markers (see logs/PROCESS-AUDIT.md and
     replay_verdicts.py) and do not feed selection."""
-    best = 0.61906  # BANKED_VALID: the frozen champion (R24b committee)
+    best = BANKED_VALID  # the frozen champion (R33c committee, campaign 5;
+                         # the prior floor was R24b's 0.61906)
     if os.path.exists(LOG):
         with open(LOG) as fh:
             for line in fh:
@@ -54,6 +59,41 @@ def current_best():
                         and r.get('valid_mean') is not None):
                     best = max(best, r['valid_mean'])
     return best
+
+
+def log_committee_result(name, valid, test, config=None, note=''):
+    """Bank a committee-level evaluation as a first-class, rule-tagged
+    record. Committee results (z-scored prediction averages over already
+    logged singles) were previously written in a legacy format without the
+    rule tag, so they could not feed current_best(); this closes that gap.
+    The verdict is computed exactly as in run_experiment, from VALIDATION.
+    `valid`/`test` are evaluate() dicts for the committee predictions."""
+    vm, tm = float(valid['primary']), float(test['primary'])
+    best = current_best()
+    d_base = vm - BASELINE_VALID
+    if d_base > GATE and vm > best + PROMOTION_MARGIN:
+        verdict = 'WIN'
+    elif d_base > GATE:
+        verdict = 'SIGNIFICANT_BUT_NOT_BEST'
+    elif d_base < -GATE:
+        verdict = 'WORSE'
+    else:
+        verdict = 'NOISE'
+    rec = {'phase': 'result', 'ts': time.strftime('%Y-%m-%d %H:%M:%S'),
+           'name': name, 'valid_mean': round(vm, 5), 'test_mean': round(tm, 5),
+           'test_std': None, 'committee': True,
+           'valid_GAUC': round(float(valid['GAUC']), 5),
+           'valid_nDCG@5': round(float(valid['nDCG@5']), 5),
+           'test_GAUC': round(float(test['GAUC']), 5),
+           'test_nDCG@5': round(float(test['nDCG@5']), 5),
+           'd_baseline_valid': round(d_base, 5),
+           'd_best_valid': round(vm - best, 5),
+           'verdict': verdict, 'rule': RULE_TAG,
+           'config': config or {}, 'note': note}
+    _append(rec)
+    print(f"[{verdict}] {name}: committee valid {vm:.5f} "
+          f"(vs banked best {vm - best:+.5f}) | test {tm:.5f} recorded")
+    return rec
 
 
 def run_experiment(name, hypothesis, rationale, train_fn, seeds=3, config=None):
@@ -104,9 +144,7 @@ def run_experiment(name, hypothesis, rationale, train_fn, seeds=3, config=None):
            'verdict': verdict, 'rule': RULE_TAG,
            'wall_s': round(time.time() - t0, 1)}
     _append(rec)
-    BANKED_VALID = 0.61906  # banked best on VALIDATION (R24b committee)
-    BANKED = 0.6116         # its test primary, for reporting only
-    mark = '✅ BETTER than banked' if vm > BANKED_VALID else '❌ not better'
-    print(f"[{verdict}] {name}: valid {vm:.4f} (vs banked {vm - BANKED_VALID:+.4f} {mark}) "
+    mark = '✅ BETTER than banked' if vm > best else '❌ not better'
+    print(f"[{verdict}] {name}: valid {vm:.4f} (vs banked {vm - best:+.4f} {mark}) "
           f"| test {tm:.4f} ± {tsd:.4f} recorded | {rec['wall_s']}s)")
     return rec

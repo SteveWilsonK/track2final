@@ -4,10 +4,14 @@
 
 - `submission.csv`: the frozen model's score for every test split row, in
   the starter kit schema (row_id, user_id, video_id, score). Validated with
-  the kit's own checker: 170,588 rows, aligned.
-- `frozen_model/`: the model checkpoint. Five seed weight files plus
+  the kit's own checker (170,588 rows, aligned) and by re-evaluating the
+  written scores in the kit's row order (`code/make_final_submission.py`
+  prints primary 0.61430).
+- `frozen_model/`: the model checkpoint (R33c). Five seed weight files plus
   config.json with the full recipe. Regenerate everything from raw data
   with `python3 final_model.py` in `code/` (about 5 minutes, CPU only).
+- `frozen_model_r24b/`: the pre-promotion champion (0.6116), kept so every
+  analysis measured on it stays reproducible.
 
 ## Results table (required benchmark: KuaiRand-Pure)
 
@@ -16,18 +20,25 @@ evaluated once on the test split.
 
 | Metric | Official baseline (test) | Ours (validation) | Ours (test) | Delta vs baseline (test) |
 |---|---|---|---|---|
-| GAUC | 0.6610 | 0.6926 | 0.6825 | +0.0215 |
-| nDCG@5 | 0.5282 | 0.5455 | 0.5408 | +0.0126 |
-| primary | 0.5946 | 0.6191 | 0.6116 | +0.0170 |
+| GAUC | 0.6610 | 0.6948 | 0.6857 | +0.0247 |
+| nDCG@5 | 0.5282 | 0.5464 | 0.5429 | +0.0147 |
+| primary | 0.5946 | 0.6206 | 0.6143 | +0.0197 |
 
 Score under the official formula (mean over metrics of the absolute delta):
-(0.0215 + 0.0126) / 2 = **+0.0170**.
+(0.0247 + 0.0147) / 2 = **+0.0197**.
+
+This is the 31 Aug promoted checkpoint (R33c: the seven-feature recipe
+plus the autonomous loop's tab_n discovery, banked at the pre-committed
+committee check and converged in campaign 5). The pre-promotion champion
+(R24b, 0.6116 test) is archived at `frozen_model_r24b/`; the post-freeze
+analyses below that predate the promotion were measured on it and are
+labeled accordingly.
 
 Context: the attainable range runs from random scoring (about 0.475; the
 official statement quotes 0.4753, our seeded examples in verify_claims.py
 average 0.4747) to the
 oracle ceiling at 0.8645. The baseline captures about 31 percent of that
-range. Our submission captures about 37 percent. We derived the ceiling
+range. Our submission captures about 36 percent. We derived the ceiling
 arithmetic ourselves (27.1 percent of test users have no positive label,
 9.2 percent are all positive) before reading the organizers' numbers, and
 they match exactly.
@@ -46,6 +57,8 @@ training is single machine laptop CPU, numpy only.
 | Verification run (unattended, overnight) | 3 | 52 min 32 s | 149,658 | 6,188,547 |
 | Clean-room run (unattended, from bare baseline) | 6 | 1 h 47 min 41 s | 325,476 | 17,978,927 |
 | Interactive culminating run (iterations 17 to 27) | 11 | at most 1 h 38 m measured | not separately metered (shared a supervised session) | n/a |
+| v2-loop iteration (31 Aug, ended by a driver fault) | 1 | about 18 min of session work | not fully metered (driver fault lost the session tail) | n/a |
+| Campaign 5 completion run (operator-driven) | 4 | about 13 min measured training | no agent sessions (scripted experiments through the harness) | n/a |
 
 All runs terminated by the official convergence rule (epsilon 0.002, N 3,
 on validation), inside the 50 iteration cap and the 6 hour ceiling.
@@ -54,17 +67,19 @@ to 90 seconds per 3 seed experiment). The cost is agent reasoning.
 
 ## The campaigns side by side
 
-To be explicit: **the designated final submission is 0.6116**, the
-converged checkpoint of the interactive campaign's culminating run. The
-verification and clean-room runs are supplementary autonomy demonstrations.
-They are not the scored submission and should not be averaged with it.
+To be explicit: **the designated final submission is 0.6143**, the
+converged checkpoint of campaign 5 — the interactive campaign's recipe
+plus the autonomous loop's promoted tab_n discovery. The verification,
+clean-room, and v2-loop runs are autonomy demonstrations. They are not
+the scored submission and should not be averaged with it.
 
 | Campaign | Start state | Manual interventions | Converged at |
 |---|---|---|---|
-| Interactive research (29 runs; culminating run 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | **0.6116, the designated final submission** |
+| Interactive research (29 runs; culminating run 17 to 27) | official baseline | 3 loop-relevant, 0 iteration-level | 0.6116 (the champion until 31 Aug) |
 | Verification run (3 iterations; non-regression check, banked nothing) | frozen research state | 0 | 0.6116 survives re-challenge |
 | Clean-room run (6 iterations) | bare baseline, empty memory | 0 | 0.59744 (+0.0028 over baseline; supplementary demonstration) |
-| v2-loop iteration (31 Aug, 1 iteration; see ITERATION-LOGS addendum) | frozen research state + belief state | 0 | full loop demonstrated: residual analysis -> mechanism hypothesis -> experiment (+0.0024 over control) -> placebo falsification -> sub-margin decline; banked nothing, 0.6116 unchanged |
+| v2-loop iteration (31 Aug, 1 iteration; see ITERATION-LOGS addendum) | frozen research state + belief state | 0 | full loop demonstrated: residual analysis -> mechanism hypothesis -> experiment (+0.0024 over control) -> placebo falsification -> sub-margin 3-seed decline |
+| Campaign 5, completion run (4 iterations, operator-driven; see ITERATION-LOGS) | banked state | operator-driven by design | **0.6143, the designated final submission** (the loop's tab_n banked at the pre-committed 5-seed committee check, then three sub-epsilon iterations) |
 
 The clean-room agent also refused two configurations whose test scores
 looked better but whose validation did not justify them (its iterations 4
@@ -73,16 +88,19 @@ test-based selection, and the agent made them alone.
 
 ## Serving-assumption ablation (added 30 Aug)
 
-The sequence features assume a streaming feature store. Measured with the
-shipped weights (`code/staleness_ablation.py`), only test featurization
+The history features assume a streaming feature store. Measured on the
+pre-promotion champion's weights (R24b; `code/staleness_ablation.py`),
+only test featurization
 changing: continuous 0.6116 (+0.0170), daily batch refresh 0.6083
 (+0.0137), frozen at the test boundary 0.5943 (a lower bound distorted by
 train/serve skew). See logs/PROCESS-AUDIT.md for the full reading.
 
 ## Post-freeze impact analyses (30 Aug night)
 
-Run after the freeze in response to review-round impact critiques. Neither
-touches the designated submission; the frozen checkpoint is unchanged.
+Run after the 29 Aug freeze in response to review-round impact critiques,
+all measured on the champion of that date (R24b, 0.6116); none is a
+selection event. The 31 Aug promotion post-dates them and changes none of
+their numbers.
 
 1. Daily-regime retraining (`code/daily_retrain.py`): every row's features
    rebuilt under a daily batch refresh and the 5-seed committee retrained
@@ -104,8 +122,9 @@ touches the designated submission; the frozen checkpoint is unchanged.
    still beats the official baseline there. The measured freshness curve
    is monotone: frozen +0.0033, daily +0.0160, continuous +0.0170.
 
-2. Unbiased evaluation on random exposure (`code/unbiased_eval.py`):
-   the frozen committee scored on 897,721 test-window impressions from
+2. Unbiased evaluation on random exposure (`code/unbiased_eval.py`),
+   measured on the pre-promotion champion (R24b): its committee scored on
+   897,721 test-window impressions from
    log_random, where videos were exposed uniformly at random (no selection
    bias), against a seed-matched 5-seed kit-baseline committee retrained
    on the standard training split. Evaluation only; the training
@@ -159,7 +178,7 @@ the designated submission.
 
    | Arm | test primary |
    |---|---|
-   | A full recipe (frozen submission) | 0.61164 |
+   | A full recipe (the champion when this ran, R24b) | 0.61164 |
    | B no sequence features | 0.59808 |
    | C features time-shuffled | 0.59872 |
    | D features replaced by matched-cardinality noise | 0.59876 |
@@ -188,7 +207,7 @@ the designated submission.
 
    | lambda | biased (standard) test | unbiased (random-exposure) test |
    |---|---|---|
-   | 0.0 (the shipped recipe) | 0.6009 | 0.3785 |
+   | 0.0 (the undebiased recipe) | 0.6009 | 0.3785 |
    | 0.5 | 0.5840 (−0.017) | 0.4122 (+0.034) |
    | 1.0 | 0.5654 (−0.035) | 0.4181 (+0.040) |
 

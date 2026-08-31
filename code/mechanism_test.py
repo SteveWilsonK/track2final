@@ -5,7 +5,8 @@ carry what-the-user-just-did information" (a temporal mechanism). This
 script synthesizes the falsification test via controls.py and measures a
 three-way decomposition with retrained 5-seed committees:
 
-  A  full recipe (the frozen submission)          = 0.6116 (known)
+  A  full 7-sequence-feature recipe (the champion at the time this ran,
+     R24b; the 31 Aug promotion added tab_n on top)  = 0.6116 (known)
   B  base fields only, same objective/committee    -> measures no-seq floor
   C  seq features TIME-SHUFFLED within user+split  -> alignment destroyed,
      per-user marginals kept: what survives is the "user fingerprint"
@@ -36,7 +37,8 @@ from controls import time_shuffle, capacity_noise
 
 SEQ_KEYS = ['prev1', 'hist10', 'hist_n', 'auth_hist', 'hist30', 'tag_hist', 'gap']
 RICH = BASE + SEQ_KEYS
-A_FULL = 0.61164  # frozen submission, test primary (verified repeatedly)
+A_FULL = 0.61164  # R24b champion, test primary (the champion when this
+                  # analysis ran; the promoted R33c differs only by tab_n)
 
 
 def build_rich_rows():

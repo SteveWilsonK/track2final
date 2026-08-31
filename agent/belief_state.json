@@ -3,10 +3,28 @@
   {
    "id": "residual_tab_0",
    "claim": "slice tab=0 scores 0.3044 vs overall 0.6191 across 5579 users; a feature or prior targeted at this slice should close part of the gap",
-   "mechanism": "none",
-   "status": "proposed",
-   "evidence": [],
-   "control": null,
+   "mechanism": "temporal",
+   "status": "confirmed",
+   "evidence": [
+    {
+     "run": "R33b RICH + tab_n only (3 seeds)",
+     "valid_mean": 0.61955,
+     "test_mean": 0.6124,
+     "control_run": "R33-ctrl RICH (control)",
+     "control_valid": 0.61715
+    },
+    {
+     "run": "R33c RICH + tab_n 5-seed committee (BANKED)",
+     "valid": 0.62059,
+     "test": 0.61429,
+     "note": "promoted, campaign 5; designated final submission"
+    }
+   ],
+   "control": {
+    "type": "time_shuffle",
+    "outcome": "passed",
+    "detail": "R33-placebo valid 0.61612 vs control 0.61715: the entire +0.0024 gain collapses when the per-surface count is detached from its impression"
+   },
    "expected_value": 0.07846,
    "cost_estimate_s": null
   },

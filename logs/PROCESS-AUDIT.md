@@ -49,7 +49,7 @@ changes):
 
 | Test-time feature regime | primary | vs baseline |
 |---|---|---|
-| Continuous updates (as submitted; streaming feature store) | 0.61164 | +0.0170 |
+| Continuous updates (the champion as of this 30 Aug analysis, R24b; streaming feature store) | 0.61164 | +0.0170 |
 | Daily batch refresh (within-day feedback withheld) | 0.60828 | +0.0137 |
 | Frozen at the test boundary (no test-window feedback) | 0.59429 | −0.0003 |
 
@@ -114,11 +114,13 @@ serving assumption explicitly.
 ## 5. What remains true after all corrections
 
 The designated final submission is the validation-best checkpoint at
-convergence, 0.6116 on the local test split, +0.0170 over the official
-baseline, reproducible from raw data in one command, with a research trail
-of 38 runs in which negatives outnumber wins and five test-favorable
-switches were refused on validation grounds. (As of 31 Aug: 42 runs and a
-sixth refusal, the unattended sub-margin decline of R33b; see section 9.)
+convergence — at the time of this section, 0.6116 on the local test split
+(+0.0170), reproducible from raw data in one command, with a research
+trail of 38 runs in which negatives outnumber wins and five test-favorable
+switches were refused on validation grounds. (As of 31 Aug evening: the
+checkpoint is 0.6143 after the rule-following promotion of the loop's own
+discovery — see section 10 — the trail is 46 runs, and a sixth
+validation-grounded refusal is logged; see section 9.)
 
 ## 6. Second review round (30 Aug, evening)
 
@@ -239,3 +241,45 @@ the code-enforced promote() gate — exercised in the module's self-test —
 was not exercised live; the decline came from the harness promotion
 margin. The file is preserved exactly as the agent left it rather than
 groomed after the fact.
+
+## 10. The promotion (31 Aug evening), audited
+
+The submission changed on the final day, and this section records exactly
+how and why, because a late change to a frozen result is the kind of event
+an auditor should distrust by default.
+
+The sequence: (a) a peer review flagged that tab_surface.py's pre-committed
+rule had an unverifiable final step — its 5-seed committee promotion check
+ran outside the harness and the driver fault destroyed the output; (b) the
+operator re-ran that exact step, logged through the harness
+(tab_committee_check.py, record R33c with per-seed test scores): committee
+validation 0.62059, above the banked 0.61906 plus the 0.001 margin, so the
+rule written before any R33 arm ran says promote; (c) the promotion was
+executed inside campaign 5 (campaign5.py), a four-iteration run banked and
+converged under the official rule (R34 -0.00355, R35 -0.00170, R36
+-0.00070, three consecutive sub-epsilon iterations); (d) the checkpoint
+was re-frozen from scratch (final_model.py) and the submission file
+regenerated with two independent alignment checks
+(make_final_submission.py); (e) the belief state was brought up to date
+through its own API, exercising the control-gated promote() live for the
+first time (close_the_loop.py).
+
+Selection integrity: every decision in the chain used validation only.
+The test numbers of R33c were recorded (as every harness record does) but
+the promotion condition was the validation margin, the same rule that
+governed every earlier banking event. The 3-seed decline that preceded it
+(v2 loop, sub-margin) and the 5-seed promotion that followed are both
+correct applications of the same written rule at different evidence
+levels.
+
+Authorship: the hypothesis, the mechanism claim, the placebo control, and
+the experiment code are the unattended agent session's (verified
+externally against the pre-commit working tree). The committee completion,
+campaign 5, and the freeze are operator work, labeled as such everywhere.
+
+What did NOT move with the champion: the post-freeze analyses of sections
+7-9 (staleness curve, unbiased evaluation, mechanism decomposition, bias
+frontier) were measured on the R24b champion and are now labeled with
+that provenance; the R24b weights ship at final_output/frozen_model_r24b
+so every one of those numbers remains reproducible. The new champion adds
+one label-free count feature on top of the audited recipe.

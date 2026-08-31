@@ -37,6 +37,7 @@ with open(os.path.join(DATA, 'video_features_basic_pure.csv')) as fh:
 rows_flat = [x for rws in splits.values() for x in rws]
 rows_flat.sort(key=lambda x: (x['user_id'], x['date'], x['t']))
 hist = {}
+tab_ct = {}
 for x in rows_flat:
     u = x['user_id']
     if u not in hist:
@@ -53,9 +54,17 @@ for x in rows_flat:
         d = (x['date'] - h['last_t'][0]) * 86400_000 + (x['t'] - h['last_t'][1])
         x['gap'] = ('<1m' if d < 60_000 else '<1h' if d < 3_600_000
                     else '<1d' if d < 86_400_000 else '1d+')
+    # tab_n: prior impression count on this row's surface (label-free,
+    # self-exclusive: featurized before increment)
+    kt = (u, x['tab'])
+    n = tab_ct.get(kt, 0)
+    x['tab_n'] = ('0' if n == 0 else '1-3' if n <= 3 else '4-10' if n <= 10
+                  else '11-30' if n <= 30 else '31-100' if n <= 100
+                  else '100+')
+    tab_ct[kt] = n + 1
     h['last30'].append(x['y']); h['tag'][tg] += x['y']; h['last_t'] = (x['date'], x['t'])
 
-RICH = BASE + SEQ + ['hist30', 'tag_hist', 'gap']
+RICH = BASE + SEQ + ['hist30', 'tag_hist', 'gap', 'tab_n']
 enc, dim = encode_rows(splits, RICH)
 Xva, yva, uva = enc['valid']; Xte, yte, ute = enc['test']
 

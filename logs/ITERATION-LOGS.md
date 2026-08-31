@@ -124,15 +124,19 @@ in THIS repo; GAUC/nDCG components in LOG.jsonl):
 
 ## Tally
 
-42 runs across four campaigns (29 interactive · 3 verification · 6
-clean-room · 4 in the 31 Aug v2-loop iteration, see the addendum below) ·
-~79 configurations · 3 banked structural wins (objective,
-sequence features, committee) · 6 refusals of a test-favorable result on
+46 runs across five campaigns (29 interactive · 3 verification · 6
+clean-room · 4 in the 31 Aug v2-loop iteration · 4 in campaign 5, the
+completion run — see the addenda below) ·
+~82 configurations · 4 banked structural wins (objective,
+sequence features, committee, and the loop's own tab_n) · 6 refusals of a
+test-favorable result on
 validation grounds (5 test-peek refusals plus the unattended sub-margin
-decline of R33b) · 2 diagnosed leakage traps · 1 legality retirement
+decline of R33b, later superseded by the pre-committed committee check) ·
+2 diagnosed leakage traps · 1 legality retirement
 (random-exposure log) · 3 error-recovery events, all with zero data loss ·
-final: **0.6116 (+0.0170 vs published), twice-converged and independently
-reproduced.**
+final: **0.6143 (+0.0197 vs published), converged under the official rule
+in campaign 5; the pre-promotion champion 0.6116 was itself
+twice-converged and independently reproduced.**
 
 ## Addendum (30 Aug): clean-room autonomous run + spec compliance
 
@@ -172,7 +176,8 @@ verification campaign):
 | **Culminating run** | **Runs 17–27 (11)** | R18 +0.0026, R20 +0.0025, R21 +0.0072, R24 +0.0027 | **Run 27** (25/26/27 sub-ε) | **valid 0.61906 / test 0.6116** |
 | Post-convergence probes | Runs 28–29 (2) | none (banked nothing; checkpoint unchanged) | owner stopping rule | unchanged |
 
-The scored submission is the culminating run's converged checkpoint. That
+The culminating run's converged checkpoint (R24b) was the scored
+submission until 31 Aug (superseded by campaign 5, below). That
 run used **11 of 50 iterations** in a measured **≤ 1 h 38 m** of wall-clock
 (the full R17–R29 log span, 29 Aug 19:37–21:15, which overstates it) —
 inside every official limit.
@@ -184,9 +189,12 @@ All campaigns, side by side — none resumed after converging:
 | Interactive culminating run (17–27) | 11 | ≤ 1 h 38 m | validation-ε convergence → freeze |
 | Demo A (Runs 30–32) | 3 | 52 min | validation-ε convergence |
 | Clean-room (6 runs) | 6 | 1 h 48 m | validation-ε convergence |
+| v2-loop iteration (R33) | 1 | ~18 min of session work | driver wrapper fault (disclosed) |
+| Campaign 5 (R33c + R34–R36) | 4 | ~13 min measured training | validation-ε convergence → final freeze |
 
-Scored checkpoint = validation-best at convergence (R24b; the R29
-validation tie resolved to the incumbent), evaluated once on the test split.
+Scored checkpoint = validation-best at convergence: **R33c** (campaign 5;
+valid 0.62059 / test 0.61429), evaluated once on the test split. Until 31
+Aug this was R24b (the R29 validation tie resolved to the incumbent).
 
 ## Addendum (31 Aug): fourth campaign — one iteration of the v2 research loop
 
@@ -231,13 +239,53 @@ from the harness log and committed artifacts, not from the driver log.
 This is the project's third error-recovery event, again with zero data
 loss.
 
-This campaign is included in the Tally section above (42 runs across four
-campaigns; the R33b decline is counted there as the sixth refusal of a
-test-favorable result). One bookkeeping gap, disclosed: the session never
+This campaign is included in the Tally section above. One bookkeeping gap,
+disclosed: the session never
 called `attach_evidence()`/`attach_control()` on the belief state, so
-`agent/belief_state.json` still shows both hypotheses as `proposed` with
+`agent/belief_state.json` (as the session left it; preserved at commit
+59fcafe) showed both hypotheses as `proposed` with
 the pre-repair EV — the iteration's actual evidence, control, and decline
-live in `logs/LOG.jsonl` (R33-ctrl/a/b/placebo), and the code-enforced
-`promote()` gate, while self-tested, was not exercised in this live run.
-The belief state file is left exactly as the agent wrote it rather than
-groomed after the fact. Final unchanged: **0.6116**.
+live in `logs/LOG.jsonl` (R33-ctrl/a/b/placebo). The gap was closed on 31
+Aug by `agent/close_the_loop.py` (operator-run, after the promotion below):
+evidence and the passing control were attached through the module's own
+API and `promote()` — the code-enforced gate — was exercised live for the
+first time, confirming `residual_tab_0`.
+
+## Campaign 5 (31 Aug evening): the completion run that promoted the loop's discovery
+
+The v2 iteration's pre-committed rule (written in `code/tab_surface.py`
+before any arm ran) had one step left: a validated, control-passing win
+goes to a 5-seed committee promotion check. The driver fault ate that
+step's output, so the operator re-ran it, logged through the harness
+(`code/tab_committee_check.py`, record R33c): committee validation
+**0.62059** — above the banked 0.61906 + 0.001 margin. The rule says
+promote. Campaign 5 (`code/campaign5.py`, operator-driven) executed the
+promotion inside a run governed by the official convergence rule:
+
+| Iteration | Run | Valid | vs banked | Outcome |
+|---|---|---|---|---|
+| 1 | R33c committee banked (rule-tagged WIN) | 0.62059 | +0.00153 over 0.61906 | new champion |
+| 2 | R34 + per-surface recency | 0.61704 | −0.00355 | miss 1 (recency confirmed redundant) |
+| 3 | R35 + duration familiarity (next residual slice) | 0.61889 | −0.00170 | miss 2 |
+| 4 | R36 finer tab_n buckets | 0.61989 | −0.00070 | miss 3 |
+
+**Converged** by the official rule (3 consecutive iterations below
+ε=0.002) at the iteration-1 checkpoint. The designated final submission
+is therefore **R33c: valid 0.62059 / test 0.61429** (+0.0197 over the
+official baseline), replacing R24b (0.61906 / 0.61164).
+
+Provenance of the promoted feature, end to end: hypothesis generated by
+the unattended v2 loop from the champion's residuals (tab=0 slice);
+mechanism claim written before the experiment; time-shuffle placebo run
+unprompted by the agent (gain collapses entirely); 3-seed decline at the
+sub-margin stage (correct under the rule); 5-seed committee check cleared
+the margin (operator-completed after the driver fault); banked and
+converged under the official rule. Every step is in `logs/LOG.jsonl` and
+committed code. The completion run is operator-driven and labeled so —
+its role was bookkeeping of a promotion the loop had already earned, plus
+three genuine convergence-window experiments.
+
+Updated tally: the Tally section above now reads 46 runs across five
+campaigns, ~82 configurations. The sixth refusal (R33b's 3-seed decline)
+stands as a correct rule-following decision at its stage; it was
+superseded, not reversed, when the committee check cleared the bar.

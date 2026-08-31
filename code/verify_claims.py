@@ -62,13 +62,19 @@ print("\n5. Final-recipe seed noise")
 import sys
 if '--full' in sys.argv:
     print("   recomputing the 5 committee members from shipped weights ...")
-    from staleness_ablation import build_features, RICH, _frozen_dir
+    from staleness_ablation import build_features, RICH
+    from tab_surface import add_tab_features
     from sequences import encode_rows
     from baseline import FM
-    sp = build_features('continuous')
-    enc, dim = encode_rows(sp, RICH)
+    sp = add_tab_features(build_features('continuous'))
+    enc, dim = encode_rows(sp, RICH + ['tab_n'])
     Xte, yte, ute = enc['test']
-    frozen = _frozen_dir()
+    frozen = None
+    for c in ('frozen_model', os.path.join('..', 'final_output',
+                                           'frozen_model')):
+        if os.path.exists(os.path.join(c, 'fm_seed0.npz')):
+            frozen = c
+            break
     singles = []
     for seed in range(5):
         z = np.load(os.path.join(frozen, f'fm_seed{seed}.npz'))
@@ -77,7 +83,7 @@ if '--full' in sys.argv:
         singles.append(float(evaluate(ute, yte, m.predict(Xte))['primary']))
     singles = [round(x, 4) for x in singles]
 else:
-    singles = [0.6089, 0.6112, 0.6092, 0.6095, 0.6116]
+    singles = [0.6115, 0.6130, 0.6127, 0.6121, 0.6120]
     print("   (as printed by final_model.py; pass --full to recompute from")
     print("    the shipped weights, ~2 min)")
 print(f"   5 committee members (test primary): {singles}")
