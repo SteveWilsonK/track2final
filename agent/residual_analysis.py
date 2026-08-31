@@ -25,7 +25,7 @@ def slice_report(users, labels, scores, tags, min_users=50):
     """tags: list of dicts per row, e.g. {'hist': 'cold', 'tab': '1'}.
     Returns [(slice_name, primary, n_users, expected_value)] sorted worst-first
     by expected value."""
-    overall = evaluate(users, labels, scores)['primary']
+    overall = float(evaluate(users, labels, scores)['primary'])
     total_users = len(set(users))
     out = []
     keys = tags[0].keys()
@@ -39,8 +39,8 @@ def slice_report(users, labels, scores, tags, min_users=50):
                 continue
             r = evaluate(su, [labels[i] for i in idx],
                          [scores[i] for i in idx])['primary']
-            ev = max(0.0, overall - r) * (n_u / total_users)
-            out.append((f"{k}={v}", r, n_u, ev))
+            ev = float(max(0.0, overall - r) * (n_u / total_users))
+            out.append((f"{k}={v}", float(r), n_u, ev))
     out.sort(key=lambda x: -x[3])
     return overall, out
 

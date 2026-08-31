@@ -1,0 +1,14 @@
+{
+ "hypotheses": [
+  {
+   "id": "residual_tab_0",
+   "claim": "slice tab=0 scores 0.3044 vs overall 0.6191 across 5579 users; a feature or prior targeted at this slice should close part of the gap",
+   "mechanism": "none",
+   "status": "proposed",
+   "evidence": [],
+   "control": null,
+   "expected_value": 0.07846,
+   "cost_estimate_s": null
+  }
+ ]
+}

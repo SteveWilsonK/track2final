@@ -37,7 +37,7 @@ def load(path=PATH):
 
 def save(state, path=PATH):
     with open(path, 'w') as fh:
-        json.dump(state, fh, indent=1)
+        json.dump(state, fh, indent=1, default=float)
 
 
 def propose(state, hid, claim, mechanism='none', expected_value=None,
