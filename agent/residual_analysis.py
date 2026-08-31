@@ -175,11 +175,21 @@ if __name__ == '__main__':
     import belief_state as BS
 
     print("building features + scoring frozen committee on validation ...")
-    from staleness_ablation import build_features, RICH, _frozen_dir
-    splits = build_features('continuous')
-    enc, dim = encode_rows(splits, RICH)
+    from staleness_ablation import build_features, RICH
+    from tab_surface import add_tab_features
+    # score the CURRENT champion (R33c: RICH + tab_n, 31 Aug promotion);
+    # the pre-promotion analyses used R24b via staleness_ablation._frozen_dir
+    splits = add_tab_features(build_features('continuous'))
+    enc, dim = encode_rows(splits, RICH + ['tab_n'])
     Xva, yva, uva = enc['valid']
-    frozen = _frozen_dir()
+    frozen = None
+    for c in ('frozen_model', os.path.join('..', 'final_output',
+                                           'frozen_model')):
+        if os.path.exists(os.path.join(c, 'fm_seed0.npz')):
+            frozen = c
+            break
+    if frozen is None:
+        raise FileNotFoundError('frozen_model (current champion) not found')
     preds = []
     for seed in range(5):
         z = np.load(os.path.join(frozen, f'fm_seed{seed}.npz'))

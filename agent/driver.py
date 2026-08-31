@@ -48,23 +48,45 @@ def banked_best():
 
 
 def run_iteration(i):
+    """One session attempt, wedge-proof (fix after the 31 Aug campaign-4
+    fault): the session's output goes to a file, not a pipe — a pipe held
+    open by grandchild processes made subprocess.run block forever even
+    after the session finished — and on timeout the whole process GROUP is
+    killed, not just the direct child."""
+    import signal
     for attempt in range(1, RETRIES_PER_ITER + 2):
         log_event(event='iteration_start', iteration=i, attempt=attempt)
+        out_path = os.path.join(REPO, 'agent',
+                                f'session_i{i}_a{attempt}.out')
         try:
-            r = subprocess.run(
-                ['claude', '-p', PROMPT, '--dangerously-skip-permissions'],
-                cwd=REPO, timeout=TIMEOUT_S, capture_output=True, text=True)
-            tail = (r.stdout or '')[-2000:]
+            with open(out_path, 'w') as out:
+                p = subprocess.Popen(
+                    ['claude', '-p', PROMPT, '--dangerously-skip-permissions'],
+                    cwd=REPO, stdout=out, stderr=subprocess.STDOUT,
+                    text=True, start_new_session=True)
+                try:
+                    rc = p.wait(timeout=TIMEOUT_S)
+                except subprocess.TimeoutExpired:
+                    try:
+                        os.killpg(os.getpgid(p.pid), signal.SIGKILL)
+                    except ProcessLookupError:
+                        pass
+                    p.wait()
+                    log_event(event='iteration_timeout', iteration=i,
+                              attempt=attempt)
+                    log_event(event='iteration_restart', iteration=i,
+                              attempt=attempt)
+                    continue
+            with open(out_path) as fh:
+                tail = fh.read()[-2000:]
             log_event(event='iteration_end', iteration=i, attempt=attempt,
-                      returncode=r.returncode, tail=tail)
-            if r.returncode == 0:
+                      returncode=rc, tail=tail)
+            if rc == 0:
                 return True
-        except subprocess.TimeoutExpired:
-            log_event(event='iteration_timeout', iteration=i, attempt=attempt)
         except FileNotFoundError:
             log_event(event='fatal', error='claude CLI not found on PATH')
             sys.exit(1)
-        # crash/timeout -> restart (webinar ruling: not human intervention)
+        # crash -> restart (webinar ruling: not human intervention)
         log_event(event='iteration_restart', iteration=i, attempt=attempt)
     log_event(event='iteration_abandoned', iteration=i)
     return False
