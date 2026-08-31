@@ -102,11 +102,17 @@ exposure test.
 Serving assumption, stated and measured. The history features update
 continuously, which assumes a streaming feature store: a test row's
 features include the outcomes of the same user's earlier test-window
-impressions (each row still sees only strictly-prior events). We measured
-what the gain looks like under weaker serving assumptions on the
-pre-promotion champion, the 0.6116 seven-feature recipe
-(`code/staleness_ablation.py`; the promoted model adds tab_n, itself a
-history-derived count, so the same streaming assumption governs it):
+impressions (each row still sees only strictly-prior events). One
+distinction worth stating: the promoted tab_n counts prior IMPRESSIONS,
+not outcomes — it is label-free, so while it shares the streaming-state
+assumption (the count advances during the test window), no part of it
+depends on any test-window label. The deployability analyses below —
+this staleness curve, the unbiased-exposure evaluation, the mechanism
+decomposition, and the bias frontier — were measured on the
+pre-promotion champion, the 0.6116 seven-feature recipe; its weights
+ship at `final_output/frozen_model_r24b/` so every number remains
+reproducible, and the promoted model adds one label-free count on top of
+that audited recipe (`code/staleness_ablation.py`):
 
 | Test-time feature regime | primary | vs baseline |
 |---|---|---|

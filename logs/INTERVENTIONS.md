@@ -11,6 +11,8 @@ explicitly not an intervention, and neither is launching a run.
 | Interactive research campaign (Runs 1 to 29) | **3** |
 | Verification run (3 iterations, unattended, overnight) | **0** |
 | Clean-room run (6 iterations, unattended, from bare baseline) | **0** |
+| v2-loop iteration (31 Aug, unattended; R33 series) | **0** during the iteration (the session ran, experimented, controlled, and declined with nobody watching; the driver wrapper's crash afterward is a recovery event, below) |
+| Campaign 5, completion run (R33c banking + R34 to R36) | **operator-driven by design** — not an unattended campaign and never claimed as one. Its role: re-running the one step of the agent's pre-committed rule whose output the driver fault destroyed (the 5-seed committee check), banking the result that rule demanded, and running three convergence-window experiments. The promotion decision itself was made by the rule written before any R33 arm ran, not by a human judgment call; see PROCESS-AUDIT.md section 10. |
 
 ## The three interventions, enumerated
 
@@ -51,4 +53,14 @@ entry came from the agent.
 - One driver false start (the CLI was not yet authenticated). Detected in
   seconds, the log was archived rather than deleted, and the run was
   relaunched cleanly. The archived log is kept in the repository history.
-- The two unattended campaigns ran with no errors and no restarts.
+- The two overnight unattended campaigns ran with no errors and no
+  restarts.
+- The v2-loop iteration's driver wrapper died after the agent session
+  completed, losing the session's stdout (the work itself survived in the
+  harness log and committed files). Documented in PROCESS-AUDIT.md
+  section 9.
+- One script crash in campaign 5 (a feature-name error in campaign5.py's
+  first launch, after the banking step had already been written). The
+  banking record was preserved, the script was made idempotent, and the
+  rerun picked up where it left off. Fourth recovery event, zero data
+  loss.

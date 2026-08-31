@@ -133,7 +133,7 @@ test-favorable result on
 validation grounds (5 test-peek refusals plus the unattended sub-margin
 decline of R33b, later superseded by the pre-committed committee check) ·
 2 diagnosed leakage traps · 1 legality retirement
-(random-exposure log) · 3 error-recovery events, all with zero data loss ·
+(random-exposure log) · 4 error-recovery events, all with zero data loss ·
 final: **0.6143 (+0.0197 vs published), converged under the official rule
 in campaign 5; the pre-promotion champion 0.6116 was itself
 twice-converged and independently reproduced.**
