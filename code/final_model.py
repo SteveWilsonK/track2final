@@ -13,7 +13,12 @@ previous champion R24b, 29 Aug, differed only by the absence of tab_n):
 
 Running this file retrains everything from raw data (~5 min, numpy only),
 saves weights + predictions to frozen_model/, and prints the final scores.
-No test-split information influences any step before the final evaluate().
+No test label influences any training or selection step. Test-row
+FEATURES use the same strictly-prior-events rule as everywhere else,
+which under continuous updates includes earlier test-window events (the
+streaming serving assumption, stated and measured in the README's
+serving-assumption section; the frozen and daily regimes are measured in
+staleness_ablation.py and protocolB_retrain.py).
 """
 import os, csv, collections, time
 import numpy as np
