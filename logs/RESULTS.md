@@ -770,3 +770,124 @@ validation (0.61715) and four on test (0.6098), a third independent code path.
 *Backlog status after this run: #10, #11, #12 and #14 of the freeze-time
 residual-unknown list are resolved and dead. IDEAS #13 (K=2 under FM-rich) is
 the last untested item on the backlog.*
+
+## Run 38 — 31 Aug 2026, campaign 6 iteration 1: within-session position (viewing fatigue) on the majority slice
+
+*Hypothesis picked by the loop, not by a person.* `agent/residual_analysis.py`,
+re-pointed at the new champion (R33c, RICH + tab_n, validation 0.62059), returns
+`residual_tab_1` as the top open hypothesis: slice `tab=1`, 20,119 users, oracle
+headroom 0.2113 on the overall metric. `priority.py --recompute` and
+`belief_state.py --next` both return it, so it is what this iteration took.
+
+**Restating the hypothesis before spending compute.** `tab=1` is 73% of the
+impressions, so "the model is imperfect on tab=1" is nearly a tautology and its
+oracle headroom is mostly an arithmetic fact about slice size. The only
+actionable reading is *structure inside the slice that the feature set does not
+encode*. A grounding probe on **train rows only** found one — long_view rate by
+within-session position (a session ends after a 30-minute gap):
+
+| sess_pos | tab=1 rate (n) | tab=0 rate (n) |
+|---|---|---|
+| 0 | 0.418 (406,422) | 0.054 (66,006) |
+| 1–2 | 0.387 (244,313) | 0.043 (42,869) |
+| 3–5 | 0.344 (106,974) | 0.029 (20,459) |
+| 6–10 | 0.300 (50,136) | 0.021 (11,588) |
+| 11–20 | 0.240 (21,066) | 0.017 (6,303) |
+| 21–50 | 0.170 (5,537) | 0.010 (2,617) |
+| 50+ | 0.143 (428) | 0.006 (171) |
+
+A 2.9× monotone decline across the majority slice, with 51% of tab=1 rows at
+position ≥ 1. Nothing shipped represents it: `gap` is the *single* preceding
+inter-impression interval bucketed at 1m/1h/1d — it says whether the previous
+impression was in the same burst, not how deep into the burst this row sits —
+and `hist_n`/`tab_n` are lifetime counts that increment by one per row and never
+reset. Depth-within-visit is a third quantity. And it is legible to a
+*within-user* metric: the evaluation ranks all of one user's validation-window
+impressions together, and those rows span many visits.
+
+Features (causal, self-exclusive — state updates only after the row is
+featurised, rows visited in each user's chronological order, and `sess_pos`
+reads timestamps only, never labels): `sess_pos` (bucketed prior impressions in
+the current visit) and `sess_hit` (long_views so far in the visit, capped 3+).
+Mechanism tag **temporal**, so the belief-state hypothesis was re-tagged from
+the analyzer's default `none` — which *raises* the bar: `promote()` would refuse
+to confirm it without a passing time-shuffle control. Pre-committed rule written
+into `code/session_depth.py` before any arm ran: 3 seeds/arm, selection on
+validation, a win must beat the in-session control by more than
+PROMOTION_MARGIN (0.001), a win triggers the falsification control *first*, and
+only a control-passing win reaches the 5-seed committee check against 0.62059.
+
+| Arm | valid (5 dp) | Δ vs control | test primary | valid GAUC / nDCG@5 | tab=1 slice (diag.) |
+|---|---|---|---|---|---|
+| R38-ctrl RICH + tab_n (champion control) | 0.61955 | — | 0.6124 ± 0.0007 | 0.6934 / 0.5457 | 0.59747 |
+| R38a + sess_pos | 0.61850 | −0.00105 | 0.6116 ± 0.0004 | 0.6919 / 0.5451 | 0.59623 |
+| R38b + sess_pos + sess_hit | 0.61706 | **−0.00347** | 0.6111 ± 0.0009 | 0.6897 / 0.5444 | 0.59447 |
+
+**Verdict: hypothesis REFUTED, no win, no control run, nothing banked.** Both
+arms land *below* the control, so the pre-committed rule stopped the run before
+the falsification control — the control exists to interrogate a win, and there
+was none. R38b's −0.00347 clears the 0.002 gate, is consistent across three
+seeds and both metric components, and is therefore a **claimable negative**;
+R38a's −0.00105 is ~1.3σ and is recorded as directional only. The diagnostic
+slice score moves the same way the overall score does, which rules out the
+consoling reading that the feature helped tab=1 and hurt elsewhere.
+
+*Determinism note:* R38-ctrl reproduces R33b to five decimals on validation
+(0.61955) and four on test (0.6124) from an independently written code path
+(`session_depth.py`, a different feature builder and a different arm loop), so
+the champion's single-model configuration reproduces across sessions and the
+−0.00105/−0.00347 deltas are comparisons against a stable control measured in
+the same session.
+
+**Post-mortem, and the part worth keeping.** The obvious explanation is that a
+within-user metric cannot see a between-user effect. Three label-free
+diagnostics (`code/session_depth_diagnostics.py`, output in
+`logs/session_depth_diagnostic.out`; bucket rates estimated on train rows only,
+validation labels never read) say that explanation is **wrong**, and the real
+finding is sharper:
+
+1. *Not redundancy alone.* Conditioning the fatigue table on each shipped
+   feature leaves a clean monotone decline inside every stratum. `hist30`
+   absorbs 60% of `sess_pos`'s rate variance, `gap` 42%, `hist10` 28% — a lot,
+   but not the effect.
+2. *Not a between-user artifact.* Mapping each bucket to its train rate and
+   decomposing the resulting per-row prior on the validation tab=1 rows,
+   **77%** of `sess_pos`'s variance is *within* user — the channel the metric
+   scores. (For contrast, `hist30` is 5% within-user and `tab_n` 4%.)
+3. *And not a magnitude story either.* Centering every column within user and
+   regressing `sess_pos`'s prior on the champion's features leaves 54%
+   unexplained (R² 0.46), i.e. 8.19e-05 of novel within-user prior variance.
+   Running the identical measurement on **`tab_n`** — the feature that *did*
+   win, +0.0024, against the pre-promotion set — gives 86% unexplained and
+   1.04e-04. The loser has 0.79× the winner's novel within-user signal. Same
+   order of magnitude.
+
+So the tempting cheap screen — "rank candidate features by novel within-user
+prior variance and only pay for the promising ones" — would have rated
+`sess_pos` as promising as `tab_n` and been wrong. **That screen is falsified as
+a pre-run filter for this project**, and that is the transferable result of the
+iteration: additive-prior accounting does not predict what an FM will do with a
+field, because a new narrow field does not enter the model as a prior. It enters
+every pairwise interaction with the wide fields, at rank min(k_j, k_l) — Run 32's
+result — so its cost is paid in the shared embedding geometry that `user_id` and
+`video_id` are using, and that cost is not visible in any marginal statistic.
+The only instrument that measures it is the 3-seed run.
+
+The R38a → R38b gap is consistent with that reading and adds one detail:
+`sess_hit` is a coarser, reset-on-gap duplicate of `hist10`/`hist30`, and
+duplicating an existing outcome-count field costs three times what the
+label-free position field costs (−0.00347 vs −0.00105).
+
+**Instrument repair (the loop fixing itself, again).** Refuting the analyzer's
+top slice exposed a liveness defect: live mode always proposed `rep[0]`, and
+`propose()` dedups by id without reviving a record, so after this refutation the
+analyzer would have re-proposed a refuted hypothesis forever, `next_open()`
+would have returned nothing, and the loop would have stalled with an empty queue
+from iteration 2 onward. `residual_analysis.py` now walks down the oracle-headroom
+ranking to the first **unresolved** slice (`first_unresolved()`, covered by three
+new self-test assertions). Verified against the live report: with `tab=0`
+confirmed and `tab=1` refuted, the next iteration is served `hist=31-100`
+(EVo 0.13222, mechanism tag `temporal`).
+
+**Banked best unchanged: R33c, validation 0.62059 / test 0.61429.** `BANKED_VALID`
+in `harness.py` untouched, submission untouched.

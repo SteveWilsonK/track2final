@@ -124,11 +124,11 @@ in THIS repo; GAUC/nDCG components in LOG.jsonl):
 
 ## Tally
 
-47 runs across five campaigns (29 interactive · 3 verification · 6
+50 runs across six campaigns (29 interactive · 3 verification · 6
 clean-room · 4 in the 31 Aug v2-loop iteration · 4 in campaign 5, the
-completion run · 1 post-promotion mechanism control, R37 — see the
-addenda below) ·
-~83 configurations · 4 banked structural wins (objective,
+completion run · 1 post-promotion mechanism control, R37 · 3 in campaign 6,
+the session-depth refutation — see the addenda below) ·
+~86 configurations · 4 banked structural wins (objective,
 sequence features, committee, and the loop's own tab_n) · 6 refusals of a
 test-favorable result on
 validation grounds (5 test-peek refusals plus the unattended sub-margin
@@ -297,3 +297,52 @@ Updated tally: the Tally section above now reads 46 runs across five
 campaigns, ~82 configurations. The sixth refusal (R33b's 3-seed decline)
 stands as a correct rule-following decision at its stage; it was
 superseded, not reversed, when the committee check cleared the bar.
+
+## Campaign 6 (31 Aug, late): the loop's first refutation of its own top hypothesis
+
+Driver relaunched at 18:02 with the v2 iteration prompt; iteration 1 ran
+unattended and executed the full loop (`logs/LOG.jsonl` runs R38-ctrl /
+R38a / R38b, `code/session_depth.py`, `agent/belief_state.json`,
+`logs/session_depth.out`, `logs/session_depth_diagnostic.out`).
+
+1. **Observed.** Residual analyzer re-run against the *new* champion
+   (R33c, validation 0.62059). Top open hypothesis: `residual_tab_1` —
+   slice tab=1, 20,119 users, oracle headroom 0.2113. `priority.py
+   --recompute` and `belief_state.py --next` agreed; that is what was taken.
+2. **Interrogated the hypothesis before spending on it.** tab=1 is 73% of
+   impressions, so its headroom is largely arithmetic. A grounding probe on
+   **train rows only** found real structure inside the slice: long_view
+   rate falls 2.9× monotonically with within-visit position (0.418 → 0.143).
+3. **Hypothesised a mechanism and raised its own bar.** Depth-within-visit
+   is not `gap` (one interval) and not `hist_n`/`tab_n` (lifetime counts
+   that never reset). Tagged **temporal** — an upgrade from the analyzer's
+   default `none`, which makes `promote()` demand a falsification control.
+4. **Tested** two arms against a fresh in-session champion control:
+   R38-ctrl 0.61955, R38a (+`sess_pos`) 0.61850, R38b (+`sess_pos`
+   +`sess_hit`) 0.61706.
+5. **Refuted, by its own pre-committed rule.** Both arms below control, so
+   no win, so no control run and no committee — the rule stops there.
+   R38b's −0.00347 clears the 0.002 gate and is claimed as a negative;
+   R38a's −0.00105 is recorded as directional only.
+6. **Explained the failure with three label-free diagnostics** and killed a
+   plausible screen in the process: `sess_pos`'s prior is 77% within-user
+   and 54% novel after the champion's features (8.19e-05), versus `tab_n`
+   — the feature that won — at 86% novel and 1.04e-04. A "novel
+   within-user prior variance" pre-filter would have rated the loser as
+   highly as the winner. Feature value in this FM is decided in the shared
+   interaction geometry (Run 32's min(k_j,k_l) result), not in any marginal
+   statistic; the 3-seed run remains the only instrument that measures it.
+7. **Repaired the loop.** Refuting the top slice exposed a liveness bug —
+   the analyzer always proposed `rep[0]`, and `propose()` never revives a
+   resolved record, so the queue would have been permanently empty from
+   iteration 2. `first_unresolved()` now walks to the first unresolved
+   slice (three new self-test assertions). Next iteration is served
+   `hist=31-100`, EVo 0.13222.
+
+Zero manual interventions during the iteration. Nothing banked; champion
+and submission unchanged at validation 0.62059 / test 0.61429. This is the
+loop's second recorded refusal to bank under the rule and its first
+outright refutation of an analyzer-generated hypothesis — the negative and
+its post-mortem are the iteration's product.
+
+Updated tally: **50 runs across six campaigns, ~86 configurations.**

@@ -88,6 +88,30 @@ def slice_report(users, labels, scores, tags, min_users=50):
     return overall, out
 
 
+RESOLVED = ('confirmed', 'refuted', 'refuted_by_control')
+
+
+def first_unresolved(rep, state):
+    """The worst slice (by oracle headroom) whose hypothesis is not already
+    resolved in the belief state.
+
+    Added campaign 6, iteration 1. The analyzer previously always proposed
+    `rep[0]`, and `propose()` dedups by id without reviving a record, so
+    once the worst slice had been tried and refuted the analyzer kept
+    re-proposing a refuted hypothesis, `next_open()` returned nothing, and
+    the loop stalled with an empty queue. Walking down the ranking instead
+    keeps the loop live and preserves the ordering rule: the next-best
+    *unresolved* slice, never a slice the loop has already settled.
+    Returns None when every slice above `min_users` is resolved.
+    """
+    resolved = {h['id'] for h in state.get('hypotheses', [])
+                if h.get('status') in RESOLVED}
+    for row in rep:
+        if f"residual_{row[0].replace('=', '_')}" not in resolved:
+            return row
+    return None
+
+
 MECHANISM_HINT = {
     'hist': 'temporal',    # history-depth slices point at sequence starvation
     'tab': 'none',         # surface slices: no single mechanism implied
@@ -153,6 +177,19 @@ def _selftest():
     assert thin_row[5] == 1.0, "all-negative slice should be flagged degenerate"
     assert thin_row[4] == 0.0 or thin_row[4] < thin_row[3], \
         "oracle headroom must not credit a slice with nothing to gain"
+    # the analyzer must walk PAST a slice the belief state has settled,
+    # or the loop stalls once its worst slice is refuted (campaign 6 fix)
+    st = {'hypotheses': [{'id': 'residual_hist_cold', 'status': 'refuted'}]}
+    nxt = first_unresolved(rep, st)
+    assert nxt is not None and nxt[0] != 'hist=cold', \
+        "a resolved slice must not be re-proposed"
+    assert first_unresolved(rep, {'hypotheses': []})[0] == 'hist=cold', \
+        "with an empty belief state the worst slice is still the pick"
+    allres = {'hypotheses': [{'id': f"residual_{r[0].replace('=', '_')}",
+                              'status': 'confirmed'} for r in rep]}
+    assert first_unresolved(rep, allres) is None, \
+        "fully resolved report must yield no proposal"
+
     print(f"selftest OK: found broken slice '{worst[0]}' "
           f"(primary {worst[1]:.3f} vs overall {overall:.3f}, "
           f"EV {worst[3]:.4f}, oracle headroom {worst[4]:.4f}), "
@@ -218,10 +255,17 @@ if __name__ == '__main__':
                                'allneg_user_share': dg}
                               for n, r, nu, ev, evo, dg in rep]}, fh, indent=1)
 
-    worst = rep[0]
+    st = BS.load()
+    worst = first_unresolved(rep, st)
+    if worst is None:
+        print("\nevery slice above the user floor is already resolved in the "
+              "belief state; nothing new to propose.")
+        raise SystemExit(0)
+    if worst is not rep[0]:
+        print(f"\n(top slice {rep[0][0]} is already resolved; taking the "
+              f"next unresolved one)")
     h = to_hypothesis(worst[0], worst[1], overall, worst[2], worst[3],
                       worst[4], worst[5])
-    st = BS.load()
     BS.propose(st, h['id'], h['claim'], h['mechanism'], h['expected_value'])
     BS.save(st)
     print(f"\nwritten to belief state: {h['id']} (mechanism {h['mechanism']}, "

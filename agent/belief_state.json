@@ -36,9 +36,32 @@
   {
    "id": "residual_tab_1",
    "claim": "slice tab=1 scores 0.5949 vs overall 0.6191 across 20119 users; a feature or prior targeted at this slice should close part of the gap; oracle headroom on the overall metric 0.2128 (31% of the slice's users are all-negative inside it, so the slice-restricted score understates the model)",
-   "mechanism": "none",
-   "status": "proposed",
-   "evidence": [],
+   "mechanism": "temporal",
+   "status": "refuted",
+   "evidence": [
+    {
+     "run": "R38a + sess_pos (3 seeds)",
+     "valid_mean": 0.6185,
+     "test_mean": 0.61163,
+     "control_run": "R38-ctrl RICH + tab_n (champion control)",
+     "control_valid": 0.61955,
+     "delta_vs_control": -0.00105
+    },
+    {
+     "run": "R38b + sess_pos + sess_hit (3 seeds)",
+     "valid_mean": 0.61706,
+     "test_mean": 0.61114,
+     "control_run": "R38-ctrl RICH + tab_n (champion control)",
+     "control_valid": 0.61955,
+     "delta_vs_control": -0.00347,
+     "note": "Claimable negative: -0.00347 clears the 0.002 gate, consistent across 3 seeds and both metric components (valid GAUC 0.68969 vs 0.69341, nDCG@5 0.54444 vs 0.54568). Session-local outcome momentum is a coarser, reset-on-gap duplicate of hist10/hist30."
+    },
+    {
+     "run": "label-free diagnostics (no training)",
+     "finding": "The within-visit fatigue effect is real and large marginally (tab=1 long_view rate 0.418 at session position 0 -> 0.143 at 50+, train rows) and 77% of its prior variance is WITHIN user, the only channel the metric scores; 54% of that within-user prior is not explained by the champion's features (R^2 0.46). For tab_n -- the feature that DID win, +0.0024 -- the same measurement gives 86% novel and 1.04e-04 of within-user prior variance, versus sess_pos's 8.19e-05: the same order. So a 'large, novel, within-user prior' screen would have rated sess_pos as promising as tab_n and been wrong. That screen is hereby falsified as a pre-run filter for this project.",
+     "scope": "What is refuted is this INTERVENTION, not the slice's headroom: tab=1 is 73% of impressions and its oracle headroom (0.2113) is an arithmetic fact about slice size, not a defect the loop has explained away."
+    }
+   ],
    "control": null,
    "expected_value": 0.2128,
    "cost_estimate_s": null
